@@ -19,6 +19,21 @@ export type BookLanguage = (typeof BOOK_LANGUAGES)[number]['code'] | typeof OTHE
 
 export const DEFAULT_BOOK_LANGUAGE: BookLanguage = 'en'
 
+/** Maps a stored value to a picker option: unknown values become "other", missing ones the default. */
+export function toBookLanguage(stored: string | null): BookLanguage {
+  if (stored === null || stored === '') return DEFAULT_BOOK_LANGUAGE
+  const known = BOOK_LANGUAGES.find((language) => language.code === stored)
+  return known ? known.code : OTHER_LANGUAGE
+}
+
+/** Maps a language tag from a file ("pt", "pt-BR", "de-DE", "fr") to a picker option. */
+export function languageFromTag(tag: string | null): BookLanguage {
+  if (!tag) return DEFAULT_BOOK_LANGUAGE
+  const primary = tag.trim().toLowerCase().split(/[-_]/)[0]
+  const known = BOOK_LANGUAGES.find((language) => language.code === primary)
+  return known ? known.code : OTHER_LANGUAGE
+}
+
 /** Native name for a stored language code, or null for "other" / unknown codes. */
 export function nativeLanguageName(code: string): string | null {
   return BOOK_LANGUAGES.find((language) => language.code === code)?.nativeName ?? null

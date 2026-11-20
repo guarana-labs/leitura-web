@@ -58,6 +58,12 @@
   "chapter": {
     "label": "Capítulo {{number}}"
   },
+  "toast": {
+    "imported": "“{{title}}” foi adicionado à sua biblioteca.",
+    "importedWithoutCover": "“{{title}}” foi adicionado, mas a capa não pôde ser enviada. Você pode adicioná-la em Editar.",
+    "updated": "Alterações em “{{title}}” salvas.",
+    "deleted": "“{{title}}” foi excluído."
+  },
   "languages": {
     "other": "Outros"
   },
@@ -91,36 +97,20 @@
   },
   "import": {
     "title": "Importar livro",
-    "subtitle": "O texto é extraído no seu navegador. O arquivo PDF não é enviado nem armazenado.",
+    "subtitle": "O texto é extraído no seu navegador. O arquivo não é enviado nem armazenado.",
     "save": "Salvar livro",
     "saving": "Salvando…",
     "dropzone": {
-      "title": "Arraste um PDF para cá",
+      "title": "Arraste um PDF ou EPUB para cá",
       "description": "ou escolha um arquivo do seu computador (até 100 MB).",
-      "choose": "Escolher PDF"
+      "choose": "Escolher arquivo"
     },
     "extracting": {
-      "title": "Extraindo o texto…",
-      "progress": "Página {{page}} de {{total}}"
+      "title": "Extraindo o texto…"
     },
     "details": {
-      "title": "Título",
-      "author": "Autor",
-      "language": "Idioma",
-      "description": "Descrição",
       "wordsPerPage": "Palavras por página",
       "wordsPerPageHint": "Entre {{min}} e {{max}}. Parágrafos nunca são cortados."
-    },
-    "cover": {
-      "add": "Adicionar capa",
-      "change": "Trocar capa",
-      "remove": "Remover capa",
-      "hint": "Proporção 2:3. PNG, JPG ou WebP.",
-      "cropTitle": "Ajustar capa",
-      "cropDescription": "Arraste para posicionar e use o controle para aproximar.",
-      "zoom": "Zoom",
-      "apply": "Usar capa",
-      "error": "Não foi possível processar a imagem. Tente outra."
     },
     "summary": {
       "chapters": "Capítulos",
@@ -139,16 +129,42 @@
       "label": "Prévia da primeira página do capítulo selecionado"
     },
     "errors": {
-      "notPdf": "Escolha um arquivo PDF.",
+      "unsupported": "Escolha um arquivo PDF ou EPUB.",
       "tooLarge": "O arquivo é maior que {{size}} MB.",
-      "noText": "Não encontramos texto neste PDF. Ele pode ser um livro escaneado (imagens), que ainda não é suportado.",
-      "password": "Este PDF é protegido por senha.",
-      "unreadable": "Não foi possível ler este PDF.",
-      "titleRequired": "Informe o título.",
+      "noText": "Não encontramos texto neste arquivo. Ele pode ser um livro escaneado (imagens), que ainda não é suportado.",
+      "protected": "Este arquivo é protegido (senha ou DRM) e não pode ser lido.",
+      "unreadable": "Não foi possível ler este arquivo.",
       "saveFailed": "Não foi possível salvar o livro. Tente novamente."
     }
   },
+  "bookForm": {
+    "title": "Título",
+    "titleRequired": "Informe o título.",
+    "author": "Autor",
+    "language": "Idioma",
+    "description": "Descrição",
+    "cover": {
+      "add": "Adicionar capa",
+      "change": "Trocar capa",
+      "remove": "Remover capa",
+      "hint": "Proporção 2:3. PNG, JPG ou WebP.",
+      "cropTitle": "Ajustar capa",
+      "cropDescription": "Arraste para posicionar e use o controle para aproximar.",
+      "zoom": "Zoom",
+      "apply": "Usar capa",
+      "error": "Não foi possível processar a imagem. Tente outra."
+    }
+  },
   "book": {
+    "edit": {
+      "action": "Editar",
+      "title": "Editar livro",
+      "description": "O texto do livro não muda, apenas as informações e a capa.",
+      "save": "Salvar alterações",
+      "saving": "Salvando…",
+      "error": "Não foi possível salvar as alterações. Tente novamente.",
+      "coverError": "As informações foram salvas, mas a capa não pôde ser enviada. Tente novamente."
+    },
     "description": "Descrição",
     "notFound": "Livro não encontrado.",
     "loadError": "Não foi possível carregar este livro.",

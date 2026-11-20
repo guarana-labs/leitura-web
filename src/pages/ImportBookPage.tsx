@@ -2,26 +2,28 @@ import { useState } from 'react'
 import { CircleAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
+import { toast } from 'sonner'
 import { paths } from '@/app/paths'
+import { BookFileDropzone } from '@/components/import/BookFileDropzone'
 import { ExtractionProgress } from '@/components/import/ExtractionProgress'
 import { ImportReview, type ImportDraft } from '@/components/import/ImportReview'
-import { PdfDropzone } from '@/components/import/PdfDropzone'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useImportBook } from '@/hooks/useImportBook'
-import { DEFAULT_BOOK_LANGUAGE } from '@/lib/languages'
+import { detectBookFileKind, readBookFile } from '@/lib/import/readBookFile'
+import { languageFromTag } from '@/lib/languages'
 import type { BookImport } from '@/types/book'
 
-const MAX_PDF_BYTES = 100 * 1024 * 1024
+const MAX_FILE_BYTES = 100 * 1024 * 1024
 const DEFAULT_WORDS_PER_PAGE = 400
 
 type Step =
   | { name: 'select'; error: string | null }
-  | { name: 'extracting'; fileName: string; page: number; total: number }
+  | { name: 'extracting'; fileName: string; progress: number }
   | { name: 'review'; draft: ImportDraft }
 
 /**
- * Import flow: choose a PDF → extract its text in the browser → review → save.
- * Only the extracted text (and an optional cover) is saved; the PDF is discarded.
+ * Import flow: choose a PDF or EPUB → extract its text in the browser → review → save.
+ * Only the extracted text (and an optional cover) is saved; the file is discarded.
  */
 export function ImportBookPage() {
   const { t } = useTranslation()
@@ -30,21 +32,20 @@ export function ImportBookPage() {
   const [step, setStep] = useState<Step>({ name: 'select', error: null })
 
   async function handleFile(file: File) {
-    if (!/\.pdf$/i.test(file.name) && file.type !== 'application/pdf') {
-      setStep({ name: 'select', error: t('import.errors.notPdf') })
+    const kind = detectBookFileKind(file)
+    if (!kind) {
+      setStep({ name: 'select', error: t('import.errors.unsupported') })
       return
     }
-    if (file.size > MAX_PDF_BYTES) {
+    if (file.size > MAX_FILE_BYTES) {
       setStep({ name: 'select', error: t('import.errors.tooLarge', { size: 100 }) })
       return
     }
 
-    setStep({ name: 'extracting', fileName: file.name, page: 0, total: 0 })
+    setStep({ name: 'extracting', fileName: file.name, progress: 0 })
     try {
-      // Loaded on demand, so pdf.js is only downloaded when someone imports a book.
-      const { readPdfBook } = await import('@/lib/pdf/readPdfBook')
-      const book = await readPdfBook(file, (page, total) =>
-        setStep({ name: 'extracting', fileName: file.name, page, total }),
+      const book = await readBookFile(file, kind, (progress) =>
+        setStep({ name: 'extracting', fileName: file.name, progress }),
       )
       setStep({
         name: 'review',
@@ -53,7 +54,7 @@ export function ImportBookPage() {
           title: book.metadata.title,
           author: book.metadata.author,
           description: '',
-          language: DEFAULT_BOOK_LANGUAGE,
+          language: languageFromTag(book.metadata.language),
           wordsPerPage: DEFAULT_WORDS_PER_PAGE,
           chapters: book.chapters.map((chapter) => ({ ...chapter, key: crypto.randomUUID() })),
           cover: null,
@@ -68,7 +69,11 @@ export function ImportBookPage() {
     importMutation.mutate(
       { book, cover },
       {
-        onSuccess: () => navigate(paths.dashboard),
+        onSuccess: ({ coverFailed }) => {
+          if (coverFailed) toast.warning(t('toast.importedWithoutCover', { title: book.metadata.title }))
+          else toast.success(t('toast.imported', { title: book.metadata.title }))
+          navigate(paths.dashboard)
+        },
       },
     )
   }
@@ -91,11 +96,11 @@ export function ImportBookPage() {
               <span>{step.error}</span>
             </div>
           )}
-          <PdfDropzone onFile={(file) => void handleFile(file)} />
+          <BookFileDropzone onFile={(file) => void handleFile(file)} />
         </div>
       )}
 
-      {step.name === 'extracting' && <ExtractionProgress fileName={step.fileName} page={step.page} total={step.total} />}
+      {step.name === 'extracting' && <ExtractionProgress fileName={step.fileName} progress={step.progress} />}
 
       {step.name === 'review' && (
         <ImportReview
@@ -114,10 +119,10 @@ export function ImportBookPage() {
   )
 }
 
-type ExtractionErrorKey = 'import.errors.noText' | 'import.errors.password' | 'import.errors.unreadable'
+type ExtractionErrorKey = 'import.errors.noText' | 'import.errors.protected' | 'import.errors.unreadable'
 
 function extractionErrorKey(error: unknown): ExtractionErrorKey {
-  if (error instanceof Error && error.name === 'NoTextLayerError') return 'import.errors.noText'
-  if (error instanceof Error && error.name === 'PdfPasswordError') return 'import.errors.password'
+  if (error instanceof Error && error.name === 'NoTextError') return 'import.errors.noText'
+  if (error instanceof Error && error.name === 'ProtectedFileError') return 'import.errors.protected'
   return 'import.errors.unreadable'
 }

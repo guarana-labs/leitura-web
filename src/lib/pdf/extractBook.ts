@@ -16,16 +16,14 @@
  * This module has no React or browser dependencies, so it can be tested in isolation.
  */
 
+import { NoTextError, type ExtractedChapter, type ProgressCallback } from '@/lib/import/sourceBook'
+
 /** The subset of pdf.js' API this module needs. */
 export interface PdfLike {
   numPages: number
   getPage(pageNumber: number): Promise<{
     getTextContent(): Promise<{ items: unknown[] }>
   }>
-}
-
-export interface ExtractedChapter {
-  paragraphs: string[]
 }
 
 export interface ExtractedBook {
@@ -55,28 +53,19 @@ const MIN_TEXT_CHARS = 200
 const HEADING_SIZE_RATIO = 1.15
 const SAME_LINE_TOLERANCE = 2
 
-export class NoTextLayerError extends Error {
-  constructor() {
-    super('The PDF has no extractable text (it may be a scanned book).')
-    this.name = 'NoTextLayerError'
-  }
-}
-
-export async function extractBook(
-  pdf: PdfLike,
-  onProgress?: (processedPages: number, totalPages: number) => void,
-): Promise<ExtractedBook> {
+export async function extractBook(pdf: PdfLike, onProgress?: ProgressCallback): Promise<ExtractedBook> {
   const pages: Line[][] = []
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
     const page = await pdf.getPage(pageNumber)
     const content = await page.getTextContent()
     pages.push(buildLines(content.items as RawTextItem[], pageNumber))
-    onProgress?.(pageNumber, pdf.numPages)
+    onProgress?.(pageNumber / pdf.numPages)
   }
 
   const allLines = pages.flat()
   const totalChars = allLines.reduce((sum, line) => sum + line.text.length, 0)
-  if (totalChars < MIN_TEXT_CHARS) throw new NoTextLayerError()
+  // Almost no text usually means a scanned PDF (pages are images).
+  if (totalChars < MIN_TEXT_CHARS) throw new NoTextError()
 
   const cleanedPages = removeHeadersAndFooters(pages)
   const layout = measureLayout(cleanedPages.flat())

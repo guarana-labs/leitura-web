@@ -2,14 +2,15 @@ import { useRef, useState, type DragEvent } from 'react'
 import { FileUp } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
+import { BOOK_FILE_ACCEPT } from '@/lib/import/readBookFile'
 import { cn } from '@/lib/utils'
 
-interface PdfDropzoneProps {
+interface BookFileDropzoneProps {
   onFile: (file: File) => void
 }
 
-/** Drag-and-drop area (or file picker) for choosing a PDF. */
-export function PdfDropzone({ onFile }: PdfDropzoneProps) {
+/** Drag-and-drop area (or file picker) for choosing a PDF or EPUB. */
+export function BookFileDropzone({ onFile }: BookFileDropzoneProps) {
   const { t } = useTranslation()
   const inputRef = useRef<HTMLInputElement>(null)
   const [isDragging, setIsDragging] = useState(false)
@@ -45,7 +46,7 @@ export function PdfDropzone({ onFile }: PdfDropzoneProps) {
       <input
         ref={inputRef}
         type="file"
-        accept="application/pdf,.pdf"
+        accept={BOOK_FILE_ACCEPT}
         className="hidden"
         onChange={(event) => {
           const file = event.target.files?.[0]

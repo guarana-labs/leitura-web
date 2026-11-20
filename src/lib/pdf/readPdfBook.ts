@@ -1,29 +1,16 @@
 import * as pdfjs from 'pdfjs-dist'
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
-import { extractBook, type ExtractedChapter } from '@/lib/pdf/extractBook'
+import { ProtectedFileError, titleFromFileName, type ProgressCallback, type SourceBook } from '@/lib/import/sourceBook'
+import { extractBook } from '@/lib/pdf/extractBook'
 
 // pdf.js parses the file in its own Web Worker, so the page stays responsive.
 pdfjs.GlobalWorkerOptions.workerSrc = workerUrl
-
-export interface PdfBook {
-  /** Suggestions from the PDF's metadata; the user can change them. */
-  metadata: { title: string; author: string }
-  chapters: ExtractedChapter[]
-  pdfPageCount: number
-}
-
-export class PdfPasswordError extends Error {
-  constructor() {
-    super('The PDF is password protected.')
-    this.name = 'PdfPasswordError'
-  }
-}
 
 /**
  * Reads a PDF file entirely in the browser and returns its text as chapters.
  * The file itself is never uploaded or stored.
  */
-export async function readPdfBook(file: File, onProgress?: (page: number, total: number) => void): Promise<PdfBook> {
+export async function readPdfBook(file: File, onProgress?: ProgressCallback): Promise<SourceBook> {
   const data = new Uint8Array(await file.arrayBuffer())
 
   const loadingTask = pdfjs.getDocument({ data, verbosity: 0 })
@@ -31,7 +18,7 @@ export async function readPdfBook(file: File, onProgress?: (page: number, total:
   try {
     pdf = await loadingTask.promise
   } catch (error) {
-    if (error instanceof Error && error.name === 'PasswordException') throw new PdfPasswordError()
+    if (error instanceof Error && error.name === 'PasswordException') throw new ProtectedFileError()
     throw error
   }
 
@@ -41,9 +28,9 @@ export async function readPdfBook(file: File, onProgress?: (page: number, total:
       metadata: {
         title: metadata.title || titleFromFileName(file.name),
         author: metadata.author,
+        language: null,
       },
       chapters: book.chapters,
-      pdfPageCount: book.pageCount,
     }
   } finally {
     // Frees the parsed document in the pdf.js worker.
@@ -62,8 +49,4 @@ async function readMetadata(pdf: pdfjs.PDFDocumentProxy): Promise<{ title: strin
   } catch {
     return { title: '', author: '' }
   }
-}
-
-function titleFromFileName(fileName: string): string {
-  return fileName.replace(/\.pdf$/i, '').replace(/[_]+/g, ' ').trim()
 }
