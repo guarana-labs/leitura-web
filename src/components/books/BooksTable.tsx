@@ -1,0 +1,84 @@
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link, useNavigate } from 'react-router'
+import { paths } from '@/app/paths'
+import { BookCover } from '@/components/books/BookCover'
+import { BookProgress } from '@/components/books/BookProgress'
+import { BookRowActions } from '@/components/books/BookRowActions'
+import { DeleteBookDialog } from '@/components/books/DeleteBookDialog'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import type { BookSummary } from '@/types/book'
+import { formatDate, formatNumber, formatRelativeTime } from '@/utils/format'
+
+interface BooksTableProps {
+  books: BookSummary[]
+}
+
+/** The library table. Clicking a row opens the book page. */
+export function BooksTable({ books }: BooksTableProps) {
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  const [bookToDelete, setBookToDelete] = useState<BookSummary | null>(null)
+
+  return (
+    <>
+      <div className="overflow-hidden rounded-lg border">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="pl-4">{t('books.columns.book')}</TableHead>
+              <TableHead className="w-48">{t('books.columns.progress')}</TableHead>
+              <TableHead className="hidden text-right md:table-cell">{t('books.columns.pages')}</TableHead>
+              <TableHead className="hidden lg:table-cell">{t('books.columns.lastRead')}</TableHead>
+              <TableHead className="hidden lg:table-cell">{t('books.columns.addedAt')}</TableHead>
+              <TableHead className="w-12">
+                <span className="sr-only">{t('books.columns.actions')}</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {books.map((book) => (
+              <TableRow key={book.id} className="cursor-pointer" onClick={() => navigate(paths.book(book.id))}>
+                <TableCell className="pl-4">
+                  <div className="flex items-center gap-3">
+                    <BookCover title={book.title} url={book.coverUrl} className="w-10" />
+                    <div className="min-w-0">
+                      {/* A real link keeps keyboard and middle-click navigation working. */}
+                      <Link
+                        to={paths.book(book.id)}
+                        onClick={(event) => event.stopPropagation()}
+                        className="block max-w-[16rem] truncate font-medium hover:underline sm:max-w-sm"
+                      >
+                        {book.title}
+                      </Link>
+                      <p className="max-w-[16rem] truncate text-sm text-muted-foreground sm:max-w-sm">
+                        {book.author ?? t('books.unknownAuthor')}
+                      </p>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <BookProgress currentPage={book.currentPage} totalPages={book.totalPages} />
+                </TableCell>
+                <TableCell className="hidden text-right font-mono text-sm text-muted-foreground tabular-nums md:table-cell">
+                  {formatNumber(book.totalPages)}
+                </TableCell>
+                <TableCell className="hidden text-sm text-muted-foreground lg:table-cell">
+                  {book.lastReadAt ? formatRelativeTime(book.lastReadAt) : '—'}
+                </TableCell>
+                <TableCell className="hidden text-sm text-muted-foreground lg:table-cell">
+                  {formatDate(book.createdAt)}
+                </TableCell>
+                <TableCell className="pr-2">
+                  <BookRowActions book={book} onDelete={setBookToDelete} />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      <DeleteBookDialog book={bookToDelete} onClose={() => setBookToDelete(null)} />
+    </>
+  )
+}
