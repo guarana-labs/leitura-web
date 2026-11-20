@@ -149,10 +149,39 @@
     }
   },
   "book": {
-    "title": "Detalhes do livro"
+    "description": "Descrição",
+    "notFound": "Livro não encontrado.",
+    "loadError": "Não foi possível carregar este livro.",
+    "facts": {
+      "pages_one": "{{formatted}} página",
+      "pages_other": "{{formatted}} páginas",
+      "chapters_one": "{{formatted}} capítulo",
+      "chapters_other": "{{formatted}} capítulos",
+      "words_one": "{{formatted}} palavra",
+      "words_other": "{{formatted}} palavras",
+      "addedAt": "Adicionado em {{date}}"
+    },
+    "index": {
+      "title": "Índice",
+      "loadError": "Não foi possível carregar o índice.",
+      "reading": "Lendo",
+      "page": "Pág. {{page}}",
+      "pages": "Pág. {{first}}–{{last}}",
+      "words_one": "{{formatted}} palavra",
+      "words_other": "{{formatted}} palavras"
+    }
   },
   "reader": {
-    "pageOf": "Página {{current}} de {{total}}"
+    "pageOf": "Página {{current}} de {{total}}",
+    "previous": "Anterior",
+    "next": "Próxima",
+    "navigation": "Navegação entre páginas",
+    "chapters": "Capítulos",
+    "backToBook": "Voltar para o livro",
+    "decreaseFont": "Diminuir texto",
+    "increaseFont": "Aumentar texto",
+    "end": "Fim",
+    "loadError": "Não foi possível carregar esta página."
   },
   "notFound": {
     "title": "Página não encontrada",

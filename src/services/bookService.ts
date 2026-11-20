@@ -1,7 +1,14 @@
 import { supabase } from '@/lib/supabase'
 import { getCoverUrls, removeCover } from '@/services/coverService'
-import { mapBookRow } from '@/services/mappers'
-import type { Book, BookSummary } from '@/types/book'
+import { mapBookRow, mapChapterRow } from '@/services/mappers'
+import type { Book, BookSummary, Chapter } from '@/types/book'
+import type { TableRow } from '@/types/database'
+
+const BOOK_WITH_PROGRESS = '*, reading_progress(page_number, updated_at)'
+
+type BookRowWithProgress = TableRow<'books'> & {
+  reading_progress: Array<Pick<TableRow<'reading_progress'>, 'page_number' | 'updated_at'>>
+}
 
 /**
  * Lists the signed-in user's books with cover URLs and reading progress,
@@ -10,27 +17,40 @@ import type { Book, BookSummary } from '@/types/book'
 export async function listBooks(): Promise<BookSummary[]> {
   const { data, error } = await supabase
     .from('books')
-    .select('*, reading_progress(page_number, updated_at)')
+    .select(BOOK_WITH_PROGRESS)
     .order('created_at', { ascending: false })
 
   if (error) throw error
 
-  const coverPaths = data.flatMap((row) => (row.cover_path ? [row.cover_path] : []))
-  // A cover failing to load should never hide the library.
-  const coverUrls = await getCoverUrls(coverPaths).catch(() => new Map<string, string>())
+  const coverUrls = await loadCoverUrls(data)
+  return data.map((row) => toBookSummary(row, coverUrls)).sort(compareByRecentActivity)
+}
 
-  const books = data.map((row): BookSummary => {
-    // RLS limits progress to the current user, so there is at most one row.
-    const progress = row.reading_progress[0]
-    return {
-      ...mapBookRow(row),
-      coverUrl: row.cover_path ? (coverUrls.get(row.cover_path) ?? null) : null,
-      currentPage: progress?.page_number ?? null,
-      lastReadAt: progress?.updated_at ?? null,
-    }
-  })
+/** One book with cover URL and progress, or null when it doesn't exist (or isn't the user's). */
+export async function getBook(bookId: string): Promise<BookSummary | null> {
+  const { data, error } = await supabase.from('books').select(BOOK_WITH_PROGRESS).eq('id', bookId).maybeSingle()
 
-  return books.sort(compareByRecentActivity)
+  if (error) {
+    // An id that isn't a valid UUID can't match any book.
+    if (error.code === '22P02') return null
+    throw error
+  }
+  if (!data) return null
+
+  const coverUrls = await loadCoverUrls([data])
+  return toBookSummary(data, coverUrls)
+}
+
+/** The book's chapters in reading order. */
+export async function listChapters(bookId: string): Promise<Chapter[]> {
+  const { data, error } = await supabase
+    .from('chapters')
+    .select('*')
+    .eq('book_id', bookId)
+    .order('position', { ascending: true })
+
+  if (error) throw error
+  return data.map(mapChapterRow)
 }
 
 /** Deletes a book with its chapters, pages and progress (cascade), plus its cover file. */
@@ -41,6 +61,23 @@ export async function deleteBook(book: Pick<Book, 'id' | 'coverPath'>): Promise<
   if (book.coverPath) {
     // The book is already gone; an orphaned cover file is harmless, so don't fail the delete.
     await removeCover(book.coverPath).catch(() => undefined)
+  }
+}
+
+async function loadCoverUrls(rows: TableRow<'books'>[]): Promise<Map<string, string>> {
+  const paths = rows.flatMap((row) => (row.cover_path ? [row.cover_path] : []))
+  // A cover failing to load should never hide the book.
+  return getCoverUrls(paths).catch(() => new Map<string, string>())
+}
+
+function toBookSummary(row: BookRowWithProgress, coverUrls: Map<string, string>): BookSummary {
+  // RLS limits progress to the current user, so there is at most one row.
+  const progress = row.reading_progress[0]
+  return {
+    ...mapBookRow(row),
+    coverUrl: row.cover_path ? (coverUrls.get(row.cover_path) ?? null) : null,
+    currentPage: progress?.page_number ?? null,
+    lastReadAt: progress?.updated_at ?? null,
   }
 }
 

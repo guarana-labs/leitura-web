@@ -19,6 +19,11 @@ export type BookLanguage = (typeof BOOK_LANGUAGES)[number]['code'] | typeof OTHE
 
 export const DEFAULT_BOOK_LANGUAGE: BookLanguage = 'en'
 
+/** Native name for a stored language code, or null for "other" / unknown codes. */
+export function nativeLanguageName(code: string): string | null {
+  return BOOK_LANGUAGES.find((language) => language.code === code)?.nativeName ?? null
+}
+
 /**
  * The language's name in the UI language, e.g. "Alemão" for "de" in pt-BR.
  * Returns null when it would just repeat the native name (e.g. "Português" in pt-BR).

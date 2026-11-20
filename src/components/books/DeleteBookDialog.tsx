@@ -18,9 +18,11 @@ interface DeleteBookDialogProps {
   /** The book to delete; the dialog is open while this is set. */
   book: Pick<Book, 'id' | 'title' | 'coverPath'> | null
   onClose: () => void
+  /** Called after a successful delete, before `onClose`. */
+  onDeleted?: () => void
 }
 
-export function DeleteBookDialog({ book, onClose }: DeleteBookDialogProps) {
+export function DeleteBookDialog({ book, onClose, onDeleted }: DeleteBookDialogProps) {
   const { t } = useTranslation()
   const deleteMutation = useDeleteBook()
   // Keep showing the last book while the dialog animates closed (when `book` is already null).
@@ -39,6 +41,7 @@ export function DeleteBookDialog({ book, onClose }: DeleteBookDialogProps) {
     deleteMutation.mutate(book, {
       onSuccess: () => {
         deleteMutation.reset()
+        onDeleted?.()
         onClose()
       },
     })

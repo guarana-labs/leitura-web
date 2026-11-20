@@ -1,4 +1,4 @@
-import type { Book } from '@/types/book'
+import type { Book, Chapter } from '@/types/book'
 import type { TableRow } from '@/types/database'
 
 export function mapBookRow(row: TableRow<'books'>): Book {
@@ -15,5 +15,16 @@ export function mapBookRow(row: TableRow<'books'>): Book {
     totalChapters: row.total_chapters,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  }
+}
+
+export function mapChapterRow(row: TableRow<'chapters'>): Chapter {
+  return {
+    id: row.id,
+    bookId: row.book_id,
+    position: row.position,
+    firstPage: row.first_page,
+    lastPage: row.last_page,
+    wordCount: row.word_count,
   }
 }
