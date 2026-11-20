@@ -1,0 +1,98 @@
+{
+  "app": {
+    "name": "Leitura",
+    "tagline": "Seus livros, uma página de cada vez."
+  },
+  "common": {
+    "loading": "Carregando…",
+    "cancel": "Cancelar",
+    "retry": "Tentar novamente"
+  },
+  "nav": {
+    "library": "Biblioteca",
+    "importBook": "Importar livro",
+    "toggleTheme": "Alternar tema",
+    "accountMenu": "Menu da conta",
+    "signOut": "Sair"
+  },
+  "auth": {
+    "signInTab": "Entrar",
+    "signUpTab": "Criar conta",
+    "signInAction": "Entrar",
+    "signUpAction": "Criar conta",
+    "email": "E-mail",
+    "emailPlaceholder": "voce@exemplo.com",
+    "password": "Senha",
+    "confirmPassword": "Confirmar senha",
+    "passwordHint_one": "Mínimo de {{count}} caractere.",
+    "passwordHint_other": "Mínimo de {{count}} caracteres.",
+    "showPassword": "Mostrar senha",
+    "hidePassword": "Ocultar senha",
+    "confirmEmailSent": "Conta criada. Confirme seu e-mail para entrar.",
+    "errors": {
+      "invalidCredentials": "E-mail ou senha incorretos.",
+      "emailInUse": "Já existe uma conta com este e-mail.",
+      "weakPassword": "Senha muito fraca. Escolha uma senha mais forte.",
+      "invalidEmail": "Informe um e-mail válido.",
+      "rateLimited": "Muitas tentativas. Aguarde um pouco e tente novamente.",
+      "emailNotConfirmed": "Confirme seu e-mail antes de entrar.",
+      "signupDisabled": "Novos cadastros estão desativados.",
+      "network": "Não foi possível conectar. Verifique sua internet.",
+      "generic": "Algo deu errado. Tente novamente.",
+      "passwordTooShort_one": "A senha precisa ter pelo menos {{count}} caractere.",
+      "passwordTooShort_other": "A senha precisa ter pelo menos {{count}} caracteres.",
+      "passwordMismatch": "As senhas não coincidem."
+    }
+  },
+  "dashboard": {
+    "title": "Biblioteca",
+    "bookCount_one": "{{count}} livro",
+    "bookCount_other": "{{count}} livros",
+    "loadError": "Não foi possível carregar seus livros.",
+    "empty": {
+      "title": "Sua biblioteca está vazia",
+      "description": "Importe um livro em PDF. Apenas o texto é extraído e salvo — o arquivo PDF não é armazenado."
+    }
+  },
+  "books": {
+    "unknownAuthor": "Autor desconhecido",
+    "columns": {
+      "book": "Livro",
+      "progress": "Progresso",
+      "pages": "Páginas",
+      "lastRead": "Última leitura",
+      "addedAt": "Adicionado em",
+      "actions": "Ações"
+    },
+    "progress": {
+      "notStarted": "Não iniciado",
+      "label": "{{percent}}% lido"
+    },
+    "actions": {
+      "menu": "Ações para {{title}}",
+      "start": "Começar a ler",
+      "continue": "Continuar lendo",
+      "details": "Ver detalhes",
+      "delete": "Excluir"
+    },
+    "delete": {
+      "title": "Excluir livro?",
+      "description": "“{{title}}” e todo o seu progresso de leitura serão excluídos permanentemente. Esta ação não pode ser desfeita.",
+      "confirm": "Excluir",
+      "error": "Não foi possível excluir o livro. Tente novamente."
+    }
+  },
+  "import": {
+    "title": "Importar livro"
+  },
+  "book": {
+    "title": "Detalhes do livro"
+  },
+  "reader": {
+    "pageOf": "Página {{current}} de {{total}}"
+  },
+  "notFound": {
+    "title": "Página não encontrada",
+    "backHome": "Voltar para a biblioteca"
+  }
+}
