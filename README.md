@@ -19,9 +19,15 @@ bun run dev
 1. **Environment variables.** Copy `.env.example` to `.env.local` and fill in the
    values from _Project Settings → API Keys_ (Project URL and the **publishable** key, `sb_publishable_…`).
    Never put the secret key (`sb_secret_…`) in a `VITE_` variable: those are bundled into the public JavaScript.
-2. **Database.** Apply the files in `supabase/migrations/` **in order**. Either:
-   - paste each file into the dashboard's _SQL Editor_ and run it, or
-   - with the Supabase CLI: `bun x supabase link --project-ref <ref>` then `bun x supabase db push`.
+2. **Database.** Add `DATABASE_URL` to `.env` (dashboard → _Connect_ → **Session pooler** string;
+   the direct `db.<ref>.supabase.co` host needs IPv6). Then apply pending migrations:
+
+   ```bash
+   bun run db:push
+   ```
+
+   Only migrations not yet applied are run; the history is stored in the database.
+   New schema changes go in a new file in `supabase/migrations/` (`<timestamp>_<name>.sql`).
 3. **Auth.** In _Authentication → Sign In / Providers → Email_:
    - keep **Email** enabled;
    - turn **off** "Confirm email" (users can sign in right after signing up).
