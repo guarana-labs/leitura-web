@@ -1,4 +1,5 @@
-import { COVERS_BUCKET, supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
+import { uploadCover } from '@/services/coverService'
 import type { BookImport } from '@/types/book'
 
 export interface ImportResult {
@@ -27,25 +28,11 @@ export async function saveImportedBook(book: BookImport, cover: Blob | null): Pr
   if (!cover) return { bookId, coverFailed: false }
 
   try {
-    await uploadCover(bookId, cover)
+    const path = await uploadCover(bookId, cover)
+    const { error: updateError } = await supabase.from('books').update({ cover_path: path }).eq('id', bookId)
+    if (updateError) throw updateError
     return { bookId, coverFailed: false }
   } catch {
     return { bookId, coverFailed: true }
   }
-}
-
-async function uploadCover(bookId: string, cover: Blob): Promise<void> {
-  const { data: sessionData } = await supabase.auth.getSession()
-  const userId = sessionData.session?.user.id
-  if (!userId) throw new Error('Not authenticated')
-
-  // Storage policies only allow writing inside the user's own folder.
-  const path = `${userId}/${bookId}.webp`
-  const { error: uploadError } = await supabase.storage
-    .from(COVERS_BUCKET)
-    .upload(path, cover, { contentType: 'image/webp', upsert: true })
-  if (uploadError) throw uploadError
-
-  const { error: updateError } = await supabase.from('books').update({ cover_path: path }).eq('id', bookId)
-  if (updateError) throw updateError
 }

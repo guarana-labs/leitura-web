@@ -6,6 +6,7 @@ import { paths } from '@/app/paths'
 import { BookInfo } from '@/components/books/BookInfo'
 import { ChapterIndex } from '@/components/books/ChapterIndex'
 import { DeleteBookDialog } from '@/components/books/DeleteBookDialog'
+import { EditBookDialog } from '@/components/books/EditBookDialog'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useBook, useChapters } from '@/hooks/useBooks'
@@ -17,6 +18,7 @@ export function BookDetailsPage() {
   const bookQuery = useBook(bookId)
   const chaptersQuery = useChapters(bookId)
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const [isEditOpen, setIsEditOpen] = useState(false)
 
   const book = bookQuery.data
 
@@ -43,7 +45,8 @@ export function BookDetailsPage() {
         </div>
       ) : (
         <>
-          <BookInfo book={book} onDelete={() => setIsDeleteOpen(true)} />
+          <BookInfo book={book} onEdit={() => setIsEditOpen(true)} onDelete={() => setIsDeleteOpen(true)} />
+          <EditBookDialog book={book} open={isEditOpen} onOpenChange={setIsEditOpen} />
 
           {book.description && (
             <section className="max-w-prose">

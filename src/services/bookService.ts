@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import { getCoverUrls, removeCover } from '@/services/coverService'
+import { getCoverUrls, removeCover, uploadCover } from '@/services/coverService'
 import { mapBookRow, mapChapterRow } from '@/services/mappers'
 import type { Book, BookSummary, Chapter } from '@/types/book'
 import type { TableRow } from '@/types/database'
@@ -51,6 +51,57 @@ export async function listChapters(bookId: string): Promise<Chapter[]> {
 
   if (error) throw error
   return data.map(mapChapterRow)
+}
+
+export interface BookMetadataUpdate {
+  title: string
+  author: string | null
+  description: string | null
+  language: string | null
+}
+
+/** What to do with the cover when saving an edit. */
+export type CoverUpdate = { type: 'keep' } | { type: 'replace'; blob: Blob } | { type: 'remove' }
+
+/** The details were saved, but the new cover could not be uploaded. */
+export class CoverUploadError extends Error {
+  constructor(cause: unknown) {
+    super('The book was updated, but its cover could not be uploaded.', { cause })
+    this.name = 'CoverUploadError'
+  }
+}
+
+/**
+ * Updates a book's details and cover. The text (chapters and pages) never changes.
+ * Old cover files are removed after the book points to the new state, so a failure
+ * never leaves the book pointing at a missing file.
+ */
+export async function updateBook(
+  book: Pick<Book, 'id' | 'coverPath'>,
+  metadata: BookMetadataUpdate,
+  cover: CoverUpdate,
+): Promise<void> {
+  const { error } = await supabase
+    .from('books')
+    .update({ ...metadata, ...(cover.type === 'remove' ? { cover_path: null } : {}) })
+    .eq('id', book.id)
+  if (error) throw error
+
+  if (cover.type === 'replace') {
+    try {
+      const path = await uploadCover(book.id, cover.blob)
+      const { error: coverError } = await supabase.from('books').update({ cover_path: path }).eq('id', book.id)
+      if (coverError) throw coverError
+    } catch (uploadError) {
+      throw new CoverUploadError(uploadError)
+    }
+  }
+
+  const oldCoverIsUnused = cover.type !== 'keep' && book.coverPath
+  if (oldCoverIsUnused) {
+    // An orphaned file is harmless, so this never fails the save.
+    await removeCover(book.coverPath!).catch(() => undefined)
+  }
 }
 
 /** Deletes a book with its chapters, pages and progress (cascade), plus its cover file. */

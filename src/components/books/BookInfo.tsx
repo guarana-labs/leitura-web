@@ -1,4 +1,4 @@
-import { BookOpenText, Trash2 } from 'lucide-react'
+import { BookOpenText, Pencil, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { paths } from '@/app/paths'
@@ -11,11 +11,12 @@ import { formatDate, formatNumber } from '@/utils/format'
 
 interface BookInfoProps {
   book: BookSummary
+  onEdit: () => void
   onDelete: () => void
 }
 
 /** Top of the book page: cover, title, author, facts, progress and actions. */
-export function BookInfo({ book, onDelete }: BookInfoProps) {
+export function BookInfo({ book, onEdit, onDelete }: BookInfoProps) {
   const { t } = useTranslation()
 
   const language = book.language === OTHER_LANGUAGE ? t('languages.other') : nativeLanguageName(book.language ?? '')
@@ -61,6 +62,10 @@ export function BookInfo({ book, onDelete }: BookInfoProps) {
               <BookOpenText aria-hidden />
               {book.currentPage ? t('books.actions.continue') : t('books.actions.start')}
             </Link>
+          </Button>
+          <Button variant="outline" onClick={onEdit}>
+            <Pencil aria-hidden />
+            {t('book.edit.action')}
           </Button>
           <Button variant="ghost" className="text-muted-foreground hover:text-destructive" onClick={onDelete}>
             <Trash2 aria-hidden />

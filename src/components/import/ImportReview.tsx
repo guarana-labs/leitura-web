@@ -1,14 +1,13 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { CircleAlert, LoaderCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { LanguageSelect } from '@/components/books/LanguageSelect'
+import { BookMetadataFields } from '@/components/books/BookMetadataFields'
+import { CoverPicker } from '@/components/books/CoverPicker'
 import { ChapterList } from '@/components/import/ChapterList'
-import { CoverPicker } from '@/components/import/CoverPicker'
 import { PagePreview } from '@/components/import/PagePreview'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import type { BookLanguage } from '@/lib/languages'
 import { paginate } from '@/lib/pagination/paginate'
 import type { BookImport } from '@/types/book'
@@ -111,50 +110,13 @@ export function ImportReview({ draft, onChange, onCancel, onSave, isSaving, save
     <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
       {/* Left: book details */}
       <section className="flex flex-col gap-5">
-        <CoverPicker title={draft.title} cover={draft.cover} onChange={(cover) => update({ cover })} />
+        <CoverPicker
+          title={draft.title}
+          value={draft.cover ? { type: 'new', blob: draft.cover } : { type: 'none' }}
+          onChange={(cover) => update({ cover: cover.type === 'new' ? cover.blob : null })}
+        />
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="import-title">{t('import.details.title')}</Label>
-          <Input
-            id="import-title"
-            value={draft.title}
-            onChange={(event) => update({ title: event.target.value })}
-            aria-invalid={showErrors && titleMissing}
-            maxLength={500}
-            required
-          />
-          {showErrors && titleMissing && <p className="text-xs text-destructive">{t('import.errors.titleRequired')}</p>}
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="import-author">
-            {t('import.details.author')} <span className="text-muted-foreground">{t('common.optional')}</span>
-          </Label>
-          <Input
-            id="import-author"
-            value={draft.author}
-            onChange={(event) => update({ author: event.target.value })}
-            maxLength={300}
-          />
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="import-language">{t('import.details.language')}</Label>
-          <LanguageSelect id="import-language" value={draft.language} onChange={(language) => update({ language })} />
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="import-description">
-            {t('import.details.description')} <span className="text-muted-foreground">{t('common.optional')}</span>
-          </Label>
-          <Textarea
-            id="import-description"
-            value={draft.description}
-            onChange={(event) => update({ description: event.target.value })}
-            maxLength={5000}
-            rows={4}
-          />
-        </div>
+        <BookMetadataFields idPrefix="import" values={draft} onChange={update} showErrors={showErrors} />
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="import-words-per-page">{t('import.details.wordsPerPage')}</Label>

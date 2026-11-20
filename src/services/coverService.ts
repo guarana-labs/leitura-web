@@ -20,6 +20,22 @@ export async function getCoverUrls(paths: string[]): Promise<Map<string, string>
   return urls
 }
 
+/**
+ * Uploads a cover image and returns its storage path.
+ * Each upload gets a new file name, so a replaced cover is never served from a stale cache.
+ */
+export async function uploadCover(bookId: string, cover: Blob): Promise<string> {
+  const { data: sessionData } = await supabase.auth.getSession()
+  const userId = sessionData.session?.user.id
+  if (!userId) throw new Error('Not authenticated')
+
+  // Storage policies only allow writing inside the user's own folder.
+  const path = `${userId}/${bookId}-${Date.now()}.webp`
+  const { error } = await supabase.storage.from(COVERS_BUCKET).upload(path, cover, { contentType: 'image/webp' })
+  if (error) throw error
+  return path
+}
+
 export async function removeCover(path: string): Promise<void> {
   const { error } = await supabase.storage.from(COVERS_BUCKET).remove([path])
   if (error) throw error

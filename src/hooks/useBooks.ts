@@ -1,6 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@/hooks/useAuth'
-import { deleteBook, getBook, listBooks, listChapters } from '@/services/bookService'
+import {
+  deleteBook,
+  getBook,
+  listBooks,
+  listChapters,
+  updateBook,
+  type BookMetadataUpdate,
+  type CoverUpdate,
+} from '@/services/bookService'
 import type { Book, BookSummary, Chapter } from '@/types/book'
 
 /** Query keys in one place, so invalidation never misses a cache entry. */
@@ -44,6 +52,28 @@ export function useChapters(bookId: string) {
     enabled: userId !== null,
     // Chapters never change after import.
     staleTime: Infinity,
+  })
+}
+
+export function useUpdateBook() {
+  const userId = useUserId() ?? 'anonymous'
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      book,
+      metadata,
+      cover,
+    }: {
+      book: Pick<Book, 'id' | 'coverPath'>
+      metadata: BookMetadataUpdate
+      cover: CoverUpdate
+    }) => updateBook(book, metadata, cover),
+    // Refetch even after a partial failure (details saved, cover not), so the page shows what was saved.
+    onSettled: (_result, _error, { book }) => {
+      void queryClient.invalidateQueries({ queryKey: bookKeys.detail(userId, book.id) })
+      void queryClient.invalidateQueries({ queryKey: bookKeys.list(userId) })
+    },
   })
 }
 

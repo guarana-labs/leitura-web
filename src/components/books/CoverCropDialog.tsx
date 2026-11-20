@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import Cropper, { type Area } from 'react-easy-crop'
 import { LoaderCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -42,8 +42,8 @@ export function CoverCropDialog({ imageUrl, onCancel, onConfirm }: CoverCropDial
     <Dialog open={imageUrl !== null} onOpenChange={(open) => !open && !isSaving && onCancel()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{t('import.cover.cropTitle')}</DialogTitle>
-          <DialogDescription>{t('import.cover.cropDescription')}</DialogDescription>
+          <DialogTitle>{t('bookForm.cover.cropTitle')}</DialogTitle>
+          <DialogDescription>{t('bookForm.cover.cropDescription')}</DialogDescription>
         </DialogHeader>
 
         <div className="relative mx-auto aspect-[2/3] w-full max-w-64 overflow-hidden rounded-md bg-muted">
@@ -66,12 +66,12 @@ export function CoverCropDialog({ imageUrl, onCancel, onConfirm }: CoverCropDial
           max={3}
           step={0.05}
           onValueChange={([value]) => setZoom(value)}
-          aria-label={t('import.cover.zoom')}
+          aria-label={t('bookForm.cover.zoom')}
         />
 
         {hasError && (
           <p role="alert" className="text-sm text-destructive">
-            {t('import.cover.error')}
+            {t('bookForm.cover.error')}
           </p>
         )}
 
@@ -81,7 +81,7 @@ export function CoverCropDialog({ imageUrl, onCancel, onConfirm }: CoverCropDial
           </Button>
           <Button onClick={() => void handleConfirm()} disabled={isSaving || !croppedArea}>
             {isSaving && <LoaderCircle className="animate-spin" aria-hidden />}
-            {t('import.cover.apply')}
+            {t('bookForm.cover.apply')}
           </Button>
         </DialogFooter>
       </DialogContent>

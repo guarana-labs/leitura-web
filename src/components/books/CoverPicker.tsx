@@ -2,28 +2,39 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { ImagePlus, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { BookCover } from '@/components/books/BookCover'
-import { CoverCropDialog } from '@/components/import/CoverCropDialog'
+import { CoverCropDialog } from '@/components/books/CoverCropDialog'
 import { Button } from '@/components/ui/button'
+
+/**
+ * What the cover should be after saving:
+ * - existing: keep the cover the book already has (shown from its URL)
+ * - new: replace it with a freshly cropped image
+ * - none: no cover (or remove the current one)
+ */
+export type CoverState = { type: 'existing'; url: string } | { type: 'new'; blob: Blob } | { type: 'none' }
 
 interface CoverPickerProps {
   title: string
-  cover: Blob | null
-  onChange: (cover: Blob | null) => void
+  value: CoverState
+  onChange: (value: CoverState) => void
 }
 
 /** Optional cover: pick an image, crop it to 2:3, preview it. */
-export function CoverPicker({ title, cover, onChange }: CoverPickerProps) {
+export function CoverPicker({ title, value, onChange }: CoverPickerProps) {
   const { t } = useTranslation()
   const inputRef = useRef<HTMLInputElement>(null)
   const [sourceUrl, setSourceUrl] = useState<string | null>(null)
-  const previewUrl = useMemo(() => (cover ? URL.createObjectURL(cover) : null), [cover])
+
+  const newBlob = value.type === 'new' ? value.blob : null
+  const blobUrl = useMemo(() => (newBlob ? URL.createObjectURL(newBlob) : null), [newBlob])
+  const previewUrl = value.type === 'existing' ? value.url : blobUrl
 
   // Object URLs must be released, or the images stay in memory.
   useEffect(() => {
     return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl)
+      if (blobUrl) URL.revokeObjectURL(blobUrl)
     }
-  }, [previewUrl])
+  }, [blobUrl])
 
   useEffect(() => {
     return () => {
@@ -31,21 +42,23 @@ export function CoverPicker({ title, cover, onChange }: CoverPickerProps) {
     }
   }, [sourceUrl])
 
+  const hasCover = value.type !== 'none'
+
   return (
     <div className="flex items-end gap-4">
       <BookCover title={title} url={previewUrl} className="w-24" />
       <div className="flex flex-col gap-2">
         <Button type="button" variant="outline" size="sm" onClick={() => inputRef.current?.click()}>
           <ImagePlus aria-hidden />
-          {cover ? t('import.cover.change') : t('import.cover.add')}
+          {hasCover ? t('bookForm.cover.change') : t('bookForm.cover.add')}
         </Button>
-        {cover && (
-          <Button type="button" variant="ghost" size="sm" onClick={() => onChange(null)}>
+        {hasCover && (
+          <Button type="button" variant="ghost" size="sm" onClick={() => onChange({ type: 'none' })}>
             <X aria-hidden />
-            {t('import.cover.remove')}
+            {t('bookForm.cover.remove')}
           </Button>
         )}
-        <p className="text-xs text-muted-foreground">{t('import.cover.hint')}</p>
+        <p className="text-xs text-muted-foreground">{t('bookForm.cover.hint')}</p>
       </div>
 
       <input
@@ -64,7 +77,7 @@ export function CoverPicker({ title, cover, onChange }: CoverPickerProps) {
         imageUrl={sourceUrl}
         onCancel={() => setSourceUrl(null)}
         onConfirm={(blob) => {
-          onChange(blob)
+          onChange({ type: 'new', blob })
           setSourceUrl(null)
         }}
       />
