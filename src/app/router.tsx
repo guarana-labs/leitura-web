@@ -25,9 +25,10 @@ export const router = createBrowserRouter([
           { path: paths.dashboard, element: <DashboardPage /> },
           { path: paths.importBook, element: <ImportBookPage /> },
           { path: '/books/:bookId', element: <BookDetailsPage /> },
-          { path: '/books/:bookId/read/:pageNumber', element: <ReaderPage /> },
         ],
       },
+      // The reader has its own minimal header, so it sits outside AppLayout.
+      { path: '/books/:bookId/read/:pageNumber', element: <ReaderPage /> },
     ],
   },
   { path: '*', element: <NotFoundPage /> },
