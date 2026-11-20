@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { LoaderCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -43,6 +44,7 @@ export function DeleteBookDialog({ book, onClose, onDeleted }: DeleteBookDialogP
         deleteMutation.reset()
         onDeleted?.()
         onClose()
+        toast.success(t('toast.deleted', { title: book.title }))
       },
     })
   }
