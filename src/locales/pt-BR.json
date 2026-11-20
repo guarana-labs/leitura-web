@@ -6,7 +6,8 @@
   "common": {
     "loading": "Carregando…",
     "cancel": "Cancelar",
-    "retry": "Tentar novamente"
+    "retry": "Tentar novamente",
+    "optional": "(opcional)"
   },
   "nav": {
     "library": "Biblioteca",
@@ -54,6 +55,12 @@
       "description": "Importe um livro em PDF. Apenas o texto é extraído e salvo — o arquivo PDF não é armazenado."
     }
   },
+  "chapter": {
+    "label": "Capítulo {{number}}"
+  },
+  "languages": {
+    "other": "Outros"
+  },
   "books": {
     "unknownAuthor": "Autor desconhecido",
     "columns": {
@@ -83,7 +90,63 @@
     }
   },
   "import": {
-    "title": "Importar livro"
+    "title": "Importar livro",
+    "subtitle": "O texto é extraído no seu navegador. O arquivo PDF não é enviado nem armazenado.",
+    "save": "Salvar livro",
+    "saving": "Salvando…",
+    "dropzone": {
+      "title": "Arraste um PDF para cá",
+      "description": "ou escolha um arquivo do seu computador (até 100 MB).",
+      "choose": "Escolher PDF"
+    },
+    "extracting": {
+      "title": "Extraindo o texto…",
+      "progress": "Página {{page}} de {{total}}"
+    },
+    "details": {
+      "title": "Título",
+      "author": "Autor",
+      "language": "Idioma",
+      "description": "Descrição",
+      "wordsPerPage": "Palavras por página",
+      "wordsPerPageHint": "Entre {{min}} e {{max}}. Parágrafos nunca são cortados."
+    },
+    "cover": {
+      "add": "Adicionar capa",
+      "change": "Trocar capa",
+      "remove": "Remover capa",
+      "hint": "Proporção 2:3. PNG, JPG ou WebP.",
+      "cropTitle": "Ajustar capa",
+      "cropDescription": "Arraste para posicionar e use o controle para aproximar.",
+      "zoom": "Zoom",
+      "apply": "Usar capa",
+      "error": "Não foi possível processar a imagem. Tente outra."
+    },
+    "summary": {
+      "chapters": "Capítulos",
+      "pages": "Páginas",
+      "words": "Palavras"
+    },
+    "chapters": {
+      "title": "Capítulos detectados",
+      "hint": "Junte um capítulo ao anterior ou remova partes que não fazem parte do livro.",
+      "size_one": "{{words}} pal. · {{count}} pág.",
+      "size_other": "{{words}} pal. · {{count}} pág.",
+      "merge": "Juntar {{chapter}} ao anterior",
+      "remove": "Remover {{chapter}}"
+    },
+    "preview": {
+      "label": "Prévia da primeira página do capítulo selecionado"
+    },
+    "errors": {
+      "notPdf": "Escolha um arquivo PDF.",
+      "tooLarge": "O arquivo é maior que {{size}} MB.",
+      "noText": "Não encontramos texto neste PDF. Ele pode ser um livro escaneado (imagens), que ainda não é suportado.",
+      "password": "Este PDF é protegido por senha.",
+      "unreadable": "Não foi possível ler este PDF.",
+      "titleRequired": "Informe o título.",
+      "saveFailed": "Não foi possível salvar o livro. Tente novamente."
+    }
   },
   "book": {
     "title": "Detalhes do livro"

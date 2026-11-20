@@ -56,7 +56,6 @@ export type Database = {
           id: string
           book_id: string
           position: number
-          title: string
           first_page: number
           last_page: number
           word_count: number
@@ -65,14 +64,11 @@ export type Database = {
           id?: string
           book_id: string
           position: number
-          title: string
           first_page: number
           last_page: number
           word_count?: number
         }
-        Update: {
-          title?: string
-        }
+        Update: never
         Relationships: [
           {
             foreignKeyName: 'chapters_book_id_fkey'

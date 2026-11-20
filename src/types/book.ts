@@ -27,11 +27,11 @@ export interface BookSummary extends Book {
   lastReadAt: string | null
 }
 
+/** A numbered section of a book. Shown as "Chapter {position}"; it has no title of its own. */
 export interface Chapter {
   id: string
   bookId: string
   position: number
-  title: string
   firstPage: number
   lastPage: number
   wordCount: number
@@ -61,7 +61,6 @@ export interface BookImport {
   }
   wordsPerPage: number
   chapters: Array<{
-    title: string
     /** Each page is a list of paragraphs. */
     pages: string[][]
   }>
