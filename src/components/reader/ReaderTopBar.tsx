@@ -1,4 +1,5 @@
-import { ArrowLeft, Maximize, Minimize, Minus, Plus } from 'lucide-react'
+import { useState } from 'react'
+import { ArrowLeft, Maximize, Minimize, Minus, Plus, SlidersHorizontal } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { paths } from '@/app/paths'
@@ -7,6 +8,7 @@ import { ReaderFontMenu } from '@/components/reader/ReaderFontMenu'
 import { ReaderThemeMenu } from '@/components/reader/ReaderThemeMenu'
 import { Button } from '@/components/ui/button'
 import { useFullscreen } from '@/hooks/useFullscreen'
+import { cn } from '@/lib/utils'
 import type { ReaderFontId } from '@/lib/readerFonts'
 import type { ReaderThemeId } from '@/lib/readerThemes'
 
@@ -41,6 +43,35 @@ export function ReaderTopBar({
   const { t } = useTranslation()
   const fullscreen = useFullscreen()
   const fullscreenLabel = fullscreen.isFullscreen ? t('reader.exitFullscreen') : t('reader.enterFullscreen')
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+
+  // Set once and rarely touched again: inline on wider screens, behind "Ajustes" on phones.
+  const settingsControls = (
+    <>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={onDecreaseFont}
+        disabled={!canDecreaseFont}
+        aria-label={t('reader.decreaseFont')}
+        title={t('reader.decreaseFont')}
+      >
+        <Minus aria-hidden />
+      </Button>
+      <ReaderFontMenu value={font} onChange={onFontChange} />
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={onIncreaseFont}
+        disabled={!canIncreaseFont}
+        aria-label={t('reader.increaseFont')}
+        title={t('reader.increaseFont')}
+      >
+        <Plus aria-hidden />
+      </Button>
+      <ReaderThemeMenu value={readerTheme} onChange={onReaderThemeChange} />
+    </>
+  )
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
@@ -54,28 +85,7 @@ export function ReaderTopBar({
         <p className="min-w-0 flex-1 truncate text-sm font-medium">{bookTitle}</p>
 
         <div className="flex items-center">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onDecreaseFont}
-            disabled={!canDecreaseFont}
-            aria-label={t('reader.decreaseFont')}
-            title={t('reader.decreaseFont')}
-          >
-            <Minus aria-hidden />
-          </Button>
-          <ReaderFontMenu value={font} onChange={onFontChange} />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onIncreaseFont}
-            disabled={!canIncreaseFont}
-            aria-label={t('reader.increaseFont')}
-            title={t('reader.increaseFont')}
-          >
-            <Plus aria-hidden />
-          </Button>
-          <ReaderThemeMenu value={readerTheme} onChange={onReaderThemeChange} />
+          <div className="hidden items-center sm:flex">{settingsControls}</div>
           <PageIndexSheet bookId={bookId} bookTitle={bookTitle} currentPage={currentPage} />
           {/* Hidden where the browser doesn't allow it (Safari on iPhone). */}
           {fullscreen.isSupported && (
@@ -90,8 +100,27 @@ export function ReaderTopBar({
               {fullscreen.isFullscreen ? <Minimize aria-hidden /> : <Maximize aria-hidden />}
             </Button>
           )}
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn('sm:hidden', isSettingsOpen && 'bg-muted')}
+            onClick={() => setIsSettingsOpen((open) => !open)}
+            aria-label={t('reader.settings')}
+            aria-expanded={isSettingsOpen}
+            aria-controls="reader-settings-row"
+            title={t('reader.settings')}
+          >
+            <SlidersHorizontal aria-hidden />
+          </Button>
         </div>
       </div>
+
+      {/* Phones: the reading settings open as a second row under the bar. */}
+      {isSettingsOpen && (
+        <div id="reader-settings-row" className="flex items-center justify-center gap-2 border-t py-1.5 sm:hidden">
+          {settingsControls}
+        </div>
+      )}
     </header>
   )
 }
