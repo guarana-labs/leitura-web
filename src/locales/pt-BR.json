@@ -102,6 +102,10 @@
   "page": {
     "label": "Página {{number}}"
   },
+  "footer": {
+    "privacy": "Privacidade",
+    "versionLabel": "Versão do app"
+  },
   "privacy": {
     "title": "Privacidade",
     "updatedAt": "Última atualização: 21 de novembro de 2026",
