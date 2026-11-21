@@ -8,3 +8,6 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+/** Short commit hash of the build (see vite.config.ts), e.g. "7a70b95". */
+declare const __APP_VERSION__: string
