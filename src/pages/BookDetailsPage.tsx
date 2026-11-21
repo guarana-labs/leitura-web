@@ -4,19 +4,20 @@ import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
 import { paths } from '@/app/paths'
 import { BookInfo } from '@/components/books/BookInfo'
-import { ChapterIndex } from '@/components/books/ChapterIndex'
 import { DeleteBookDialog } from '@/components/books/DeleteBookDialog'
 import { EditBookDialog } from '@/components/books/EditBookDialog'
+import { PageIndex } from '@/components/books/PageIndex'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useBook, useChapters } from '@/hooks/useBooks'
+import { useBook } from '@/hooks/useBooks'
+import { usePageSummaries } from '@/hooks/useReader'
 
 export function BookDetailsPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { bookId = '' } = useParams()
   const bookQuery = useBook(bookId)
-  const chaptersQuery = useChapters(bookId)
+  const pagesQuery = usePageSummaries(bookId)
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)
 
@@ -57,12 +58,12 @@ export function BookDetailsPage() {
 
           <section className="flex flex-col gap-3">
             <h2 className="text-sm font-medium">{t('book.index.title')}</h2>
-            {chaptersQuery.isPending ? (
+            {pagesQuery.isPending ? (
               <Skeleton className="h-48 w-full" />
-            ) : chaptersQuery.isError ? (
-              <ErrorState message={t('book.index.loadError')} onRetry={() => void chaptersQuery.refetch()} />
+            ) : pagesQuery.isError ? (
+              <ErrorState message={t('book.index.loadError')} onRetry={() => void pagesQuery.refetch()} />
             ) : (
-              <ChapterIndex bookId={book.id} chapters={chaptersQuery.data} currentPage={book.currentPage} />
+              <PageIndex bookId={book.id} pages={pagesQuery.data} currentPage={book.currentPage} />
             )}
           </section>
 

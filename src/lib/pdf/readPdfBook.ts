@@ -7,7 +7,7 @@ import { extractBook } from '@/lib/pdf/extractBook'
 pdfjs.GlobalWorkerOptions.workerSrc = workerUrl
 
 /**
- * Reads a PDF file entirely in the browser and returns its text as chapters.
+ * Reads a PDF file entirely in the browser and returns its text as paragraphs.
  * The file itself is never uploaded or stored.
  */
 export async function readPdfBook(file: File, onProgress?: ProgressCallback): Promise<SourceBook> {
@@ -30,7 +30,7 @@ export async function readPdfBook(file: File, onProgress?: ProgressCallback): Pr
         author: metadata.author,
         language: null,
       },
-      chapters: book.chapters,
+      sections: [book.paragraphs],
     }
   } finally {
     // Frees the parsed document in the pdf.js worker.

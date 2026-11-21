@@ -2,16 +2,13 @@ import { ArrowLeft, Minus, Moon, Plus, Sun } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { paths } from '@/app/paths'
-import { ChapterSheet } from '@/components/reader/ChapterSheet'
+import { PageIndexSheet } from '@/components/reader/PageIndexSheet'
 import { Button } from '@/components/ui/button'
 import { useTheme } from '@/hooks/useTheme'
-import type { Chapter } from '@/types/book'
 
 interface ReaderTopBarProps {
   bookId: string
   bookTitle: string
-  chapterNumber: number | null
-  chapters: Chapter[]
   currentPage: number
   canDecreaseFont: boolean
   canIncreaseFont: boolean
@@ -23,8 +20,6 @@ interface ReaderTopBarProps {
 export function ReaderTopBar({
   bookId,
   bookTitle,
-  chapterNumber,
-  chapters,
   currentPage,
   canDecreaseFont,
   canIncreaseFont,
@@ -43,12 +38,7 @@ export function ReaderTopBar({
           </Link>
         </Button>
 
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium">{bookTitle}</p>
-          {chapterNumber !== null && (
-            <p className="truncate text-xs text-muted-foreground">{t('chapter.label', { number: chapterNumber })}</p>
-          )}
-        </div>
+        <p className="min-w-0 flex-1 truncate text-sm font-medium">{bookTitle}</p>
 
         <div className="flex items-center">
           <Button
@@ -77,7 +67,7 @@ export function ReaderTopBar({
           <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label={t('nav.toggleTheme')}>
             {theme === 'dark' ? <Sun aria-hidden /> : <Moon aria-hidden />}
           </Button>
-          <ChapterSheet bookId={bookId} bookTitle={bookTitle} chapters={chapters} currentPage={currentPage} />
+          <PageIndexSheet bookId={bookId} bookTitle={bookTitle} currentPage={currentPage} />
         </div>
       </div>
     </header>

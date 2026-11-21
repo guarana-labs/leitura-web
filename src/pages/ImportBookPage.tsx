@@ -56,7 +56,7 @@ export function ImportBookPage() {
           description: '',
           language: languageFromTag(book.metadata.language),
           wordsPerPage: DEFAULT_WORDS_PER_PAGE,
-          chapters: book.chapters.map((chapter) => ({ ...chapter, key: crypto.randomUUID() })),
+          sections: book.sections,
           cover: null,
         },
       })

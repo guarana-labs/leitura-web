@@ -1,22 +1,21 @@
 /**
- * Turns a PDF's text layer into chapters of paragraphs.
+ * Turns a PDF's text layer into a list of paragraphs.
  *
  * Deliberately simple heuristics (to be improved over time):
  * - Lines: text items sharing the same baseline.
  * - Headers/footers: lines that are only a page number, or that repeat at the
  *   top/bottom of many pages, are dropped.
- * - Headings: lines set noticeably larger than the body text. Each heading
- *   starts a new chapter and is kept as that chapter's first paragraph
- *   (consecutive heading lines are merged). Chapters have no titles: the app
- *   labels them by number ("Chapter 1", "Chapter 2", ...).
  * - Paragraphs: a new paragraph starts after a larger vertical gap, an indented
  *   line, or a short previous line that ends a sentence.
  * - Hyphenation: "Wor-" + "ten" at a line break becomes "Worten".
  *
+ * The book's structure (chapters, headings) is not detected: headings simply
+ * become paragraphs of the text.
+ *
  * This module has no React or browser dependencies, so it can be tested in isolation.
  */
 
-import { NoTextError, type ExtractedChapter, type ProgressCallback } from '@/lib/import/sourceBook'
+import { NoTextError, type ProgressCallback } from '@/lib/import/sourceBook'
 
 /** The subset of pdf.js' API this module needs. */
 export interface PdfLike {
@@ -27,8 +26,7 @@ export interface PdfLike {
 }
 
 export interface ExtractedBook {
-  chapters: ExtractedChapter[]
-  pageCount: number
+  paragraphs: string[]
 }
 
 interface RawTextItem {
@@ -50,7 +48,6 @@ interface Line {
 
 /** Minimum characters of text across the whole PDF; below this we assume a scanned PDF. */
 const MIN_TEXT_CHARS = 200
-const HEADING_SIZE_RATIO = 1.15
 const SAME_LINE_TOLERANCE = 2
 
 export async function extractBook(pdf: PdfLike, onProgress?: ProgressCallback): Promise<ExtractedBook> {
@@ -69,9 +66,7 @@ export async function extractBook(pdf: PdfLike, onProgress?: ProgressCallback): 
 
   const cleanedPages = removeHeadersAndFooters(pages)
   const layout = measureLayout(cleanedPages.flat())
-  const chapters = buildChapters(cleanedPages, layout)
-
-  return { chapters, pageCount: pdf.numPages }
+  return { paragraphs: buildParagraphs(cleanedPages, layout) }
 }
 
 // ---------------------------------------------------------------------------
@@ -197,53 +192,28 @@ function measureLayout(lines: Line[]): Layout {
 }
 
 // ---------------------------------------------------------------------------
-// Chapters and paragraphs
+// Paragraphs
 // ---------------------------------------------------------------------------
 
 const SENTENCE_END = /[.!?…:»«"“”'’)]$/
 
-function buildChapters(pages: Line[][], layout: Layout): ExtractedChapter[] {
-  const isHeading = (line: Line) => line.height >= layout.bodyHeight * HEADING_SIZE_RATIO
-
-  const chapters: ExtractedChapter[] = []
-  let chapter: ExtractedChapter = { paragraphs: [] }
+function buildParagraphs(pages: Line[][], layout: Layout): string[] {
+  const paragraphs: string[] = []
   let paragraph = ''
   let previous: Line | null = null
 
-  const flushParagraph = () => {
-    if (paragraph.trim()) chapter.paragraphs.push(paragraph.trim())
-    paragraph = ''
-  }
-  const flushChapter = () => {
-    flushParagraph()
-    if (chapter.paragraphs.length > 0) chapters.push(chapter)
-  }
-
   for (const line of pages.flat()) {
-    if (isHeading(line)) {
-      if (previous && isHeading(previous)) {
-        // Heading spread over several lines: keep it as one paragraph.
-        paragraph = joinLines(paragraph, line.text)
-      } else {
-        flushChapter()
-        chapter = { paragraphs: [] }
-        paragraph = line.text
-      }
-      previous = line
-      continue
-    }
-
-    const afterHeading = previous !== null && isHeading(previous)
     const continuesHyphenatedWord = isHyphenBreak(paragraph, line.text)
-    if (afterHeading || (previous && !continuesHyphenatedWord && startsNewParagraph(previous, line, layout))) {
-      flushParagraph()
+    if (previous && !continuesHyphenatedWord && startsNewParagraph(previous, line, layout)) {
+      if (paragraph.trim()) paragraphs.push(paragraph.trim())
+      paragraph = ''
     }
     paragraph = joinLines(paragraph, line.text)
     previous = line
   }
-  flushChapter()
+  if (paragraph.trim()) paragraphs.push(paragraph.trim())
 
-  return chapters
+  return paragraphs
 }
 
 function startsNewParagraph(previous: Line, line: Line, layout: Layout): boolean {

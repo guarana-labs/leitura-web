@@ -32,15 +32,17 @@ bun run dev
    - keep **Email** enabled;
    - turn **off** "Confirm email" (users can sign in right after signing up).
 
-### What the migrations create
+### Data model
 
-| File | Contents |
-| --- | --- |
-| `…_initial_schema.sql` | `books`, `chapters`, `pages`, `reading_progress` + Row Level Security |
-| `…_covers_storage.sql` | private `covers` bucket (`<user_id>/<book_id>.webp`) + storage policies |
-| `…_import_book.sql` | `import_book(p_book, p_chapters)`: saves a whole book in one transaction |
+- `books`: metadata, cover path, `words_per_page` and totals.
+- `pages`: the text, one row per page (about `words_per_page` words, never cutting
+  a paragraph), numbered 1..N across the book.
+- `reading_progress`: the last page each user read in each book.
+- `covers` storage bucket (private): `<user_id>/<book_id>-<timestamp>.webp`.
+- `import_book(p_book, p_pages)`: saves a whole book in one transaction.
 
-Every user only sees their own books, covers and progress.
+Every user only sees their own books, covers and progress (Row Level Security).
+The files in `supabase/migrations/` are the history of how this schema evolved.
 
 ## Project structure
 
@@ -51,13 +53,15 @@ src/
   components/
     ui/         shadcn/ui components (generated)
     layout/     header, page shell
-    books/      library table, cover, chapter index
+    books/      library table, cover, book form, go-to-page
     reader/     reader view and controls
-    import/     PDF dropzone, preview, details form, cover cropper
+    import/     file dropzone, extraction progress, review and preview
   services/     all Supabase access (auth, books, pages, progress, covers)
   lib/
-    pdf/        PDF text extraction (Web Worker) and text cleanup
-    pagination/ splits chapters into pages of ~N words
+    import/     shared entry point for reading book files
+    pdf/        PDF text extraction (pdf.js Web Worker) and text cleanup
+    epub/       EPUB text extraction (unzip + XHTML)
+    pagination/ splits the text into pages of ~N words
     supabase.ts Supabase client
     i18n.ts     translations setup
   hooks/        React hooks

@@ -13,7 +13,6 @@ export interface Book {
   wordsPerPage: number
   totalWords: number
   totalPages: number
-  totalChapters: number
   createdAt: string
   updatedAt: string
 }
@@ -27,19 +26,15 @@ export interface BookSummary extends Book {
   lastReadAt: string | null
 }
 
-/** A numbered section of a book. Shown as "Chapter {position}"; it has no title of its own. */
-export interface Chapter {
-  id: string
-  bookId: string
-  position: number
-  firstPage: number
-  lastPage: number
+/** A page as listed in the book's index (without its text). */
+export interface PageSummary {
+  pageNumber: number
   wordCount: number
 }
 
+/** One page of a book: about `wordsPerPage` words, never cutting a paragraph. */
 export interface BookPage {
   bookId: string
-  chapterId: string
   pageNumber: number
   paragraphs: string[]
   wordCount: number
@@ -60,8 +55,6 @@ export interface BookImport {
     language?: string
   }
   wordsPerPage: number
-  chapters: Array<{
-    /** Each page is a list of paragraphs. */
-    pages: string[][]
-  }>
+  /** The book's pages in order; each page is a list of paragraphs. */
+  pages: string[][]
 }

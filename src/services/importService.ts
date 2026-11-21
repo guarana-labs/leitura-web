@@ -21,7 +21,7 @@ export async function saveImportedBook(book: BookImport, cover: Blob | null): Pr
       language: book.metadata.language ?? null,
       words_per_page: book.wordsPerPage,
     },
-    p_chapters: book.chapters.map((chapter) => ({ pages: chapter.pages })),
+    p_pages: book.pages,
   })
   if (error) throw error
 

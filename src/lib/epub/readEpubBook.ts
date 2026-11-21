@@ -3,7 +3,6 @@ import {
   NoTextError,
   ProtectedFileError,
   titleFromFileName,
-  type ExtractedChapter,
   type ProgressCallback,
   type SourceBook,
 } from '@/lib/import/sourceBook'
@@ -13,8 +12,8 @@ import {
  * a package file (OPF) that lists them in reading order (the "spine").
  *
  * Simple rules (to be improved over time):
- * - Each document in the spine becomes one chapter; non-linear ones (like the
- *   cover page) and documents without text are skipped.
+ * - Each document in the spine becomes one section (it starts on a new page);
+ *   non-linear ones (like the cover page) and documents without text are skipped.
  * - Paragraphs are the innermost block elements (<p>, <h1>…, <li>, <div>, ...).
  * - Images, footnote links and formatting are dropped; only text is kept.
  */
@@ -32,19 +31,19 @@ export async function readEpubBook(file: File, onProgress?: ProgressCallback): P
   const metadata = readMetadata(opf)
   const documents = readSpine(opf, opfPath)
 
-  const chapters: ExtractedChapter[] = []
+  const sections: string[][] = []
   for (const [index, path] of documents.entries()) {
     const html = readText(path)
     if (html) {
       const paragraphs = extractParagraphs(html)
-      if (paragraphs.length > 0) chapters.push({ paragraphs })
+      if (paragraphs.length > 0) sections.push(paragraphs)
     }
     onProgress?.((index + 1) / documents.length)
     // Let the browser repaint the progress bar between documents.
     await new Promise((resolve) => setTimeout(resolve, 0))
   }
 
-  if (chapters.length === 0) throw new NoTextError()
+  if (sections.length === 0) throw new NoTextError()
 
   return {
     metadata: {
@@ -52,7 +51,7 @@ export async function readEpubBook(file: File, onProgress?: ProgressCallback): P
       author: metadata.authors.join(', '),
       language: metadata.language,
     },
-    chapters,
+    sections,
   }
 }
 

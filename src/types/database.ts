@@ -23,7 +23,6 @@ export type Database = {
           words_per_page: number
           total_words: number
           total_pages: number
-          total_chapters: number
           created_at: string
           updated_at: string
         }
@@ -38,7 +37,6 @@ export type Database = {
           words_per_page: number
           total_words?: number
           total_pages?: number
-          total_chapters?: number
           created_at?: string
           updated_at?: string
         }
@@ -51,39 +49,10 @@ export type Database = {
         }
         Relationships: []
       }
-      chapters: {
-        Row: {
-          id: string
-          book_id: string
-          position: number
-          first_page: number
-          last_page: number
-          word_count: number
-        }
-        Insert: {
-          id?: string
-          book_id: string
-          position: number
-          first_page: number
-          last_page: number
-          word_count?: number
-        }
-        Update: never
-        Relationships: [
-          {
-            foreignKeyName: 'chapters_book_id_fkey'
-            columns: ['book_id']
-            isOneToOne: false
-            referencedRelation: 'books'
-            referencedColumns: ['id']
-          },
-        ]
-      }
       pages: {
         Row: {
           id: string
           book_id: string
-          chapter_id: string
           page_number: number
           paragraphs: string[]
           word_count: number
@@ -91,7 +60,6 @@ export type Database = {
         Insert: {
           id?: string
           book_id: string
-          chapter_id: string
           page_number: number
           paragraphs: string[]
           word_count: number
@@ -103,13 +71,6 @@ export type Database = {
             columns: ['book_id']
             isOneToOne: false
             referencedRelation: 'books'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'pages_chapter_id_fkey'
-            columns: ['chapter_id']
-            isOneToOne: false
-            referencedRelation: 'chapters'
             referencedColumns: ['id']
           },
         ]
@@ -145,7 +106,7 @@ export type Database = {
     Views: { [_ in never]: never }
     Functions: {
       import_book: {
-        Args: { p_book: Json; p_chapters: Json }
+        Args: { p_book: Json; p_pages: Json }
         Returns: string
       }
       count_words: {

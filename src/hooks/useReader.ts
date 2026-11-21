@@ -2,12 +2,23 @@ import { useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { bookKeys } from '@/hooks/useBooks'
 import { useAuth } from '@/hooks/useAuth'
-import { getPage } from '@/services/pageService'
+import { getPage, listPageSummaries } from '@/services/pageService'
 import { saveProgress } from '@/services/progressService'
-import type { BookPage, BookSummary } from '@/types/book'
+import type { BookPage, BookSummary, PageSummary } from '@/types/book'
 
 const pageKey = (userId: string, bookId: string, pageNumber: number) =>
   [...bookKeys.all(userId), 'page', bookId, pageNumber] as const
+
+/** The book's index (page numbers and word counts). Never changes after import. */
+export function usePageSummaries(bookId: string) {
+  const userId = useAuth().user?.id ?? 'anonymous'
+  return useQuery<PageSummary[]>({
+    queryKey: [...bookKeys.all(userId), 'pageList', bookId],
+    queryFn: () => listPageSummaries(bookId),
+    staleTime: Infinity,
+    enabled: userId !== 'anonymous',
+  })
+}
 
 /** One page of a book. Pages never change, so they are cached for the whole session. */
 export function usePage(bookId: string, pageNumber: number) {

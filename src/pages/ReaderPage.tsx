@@ -8,7 +8,7 @@ import { ReaderControls } from '@/components/reader/ReaderControls'
 import { ReaderPageSkeleton, ReaderPageView } from '@/components/reader/ReaderPageView'
 import { ReaderTopBar } from '@/components/reader/ReaderTopBar'
 import { Button } from '@/components/ui/button'
-import { useBook, useChapters } from '@/hooks/useBooks'
+import { useBook } from '@/hooks/useBooks'
 import { useKeyboardPaging } from '@/hooks/useKeyboardPaging'
 import { usePage, usePrefetchPages, useSaveProgress } from '@/hooks/useReader'
 import { useReaderSettings } from '@/hooks/useReaderSettings'
@@ -24,7 +24,6 @@ export function ReaderPage() {
   const pageNumber = Number(pageParam)
 
   const bookQuery = useBook(bookId)
-  const chaptersQuery = useChapters(bookId)
   const pageQuery = usePage(bookId, pageNumber)
   const saveProgress = useSaveProgress(bookId)
   const settings = useReaderSettings()
@@ -82,16 +81,11 @@ export function ReaderPage() {
     return <Navigate to={paths.reader(bookId, fallback)} replace />
   }
 
-  const chapters = chaptersQuery.data ?? []
-  const chapter = chapters.find((item) => pageNumber >= item.firstPage && pageNumber <= item.lastPage) ?? null
-
   return (
     <div className="flex min-h-svh flex-col">
       <ReaderTopBar
         bookId={book.id}
         bookTitle={book.title}
-        chapterNumber={chapter?.position ?? null}
-        chapters={chapters}
         currentPage={pageNumber}
         canDecreaseFont={settings.canDecrease}
         canIncreaseFont={settings.canIncrease}
@@ -114,7 +108,6 @@ export function ReaderPage() {
           <ReaderPageView
             paragraphs={pageQuery.data.paragraphs}
             fontSize={settings.fontSize}
-            chapterStart={chapter && chapter.firstPage === pageNumber ? chapter.position : null}
             isLastPage={pageNumber === totalPages}
           />
         )}

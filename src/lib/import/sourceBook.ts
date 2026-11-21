@@ -1,11 +1,7 @@
 /**
- * What every file reader (PDF, EPUB, ...) produces: the book's text as chapters
- * of paragraphs, plus metadata suggestions the user can change before saving.
+ * What every file reader (PDF, EPUB, ...) produces: the book's text as
+ * paragraphs, plus metadata suggestions the user can change before saving.
  */
-
-export interface ExtractedChapter {
-  paragraphs: string[]
-}
 
 export interface SourceBook {
   metadata: {
@@ -14,7 +10,12 @@ export interface SourceBook {
     /** Language tag from the file (e.g. "pt", "de-DE"), when it has one. */
     language: string | null
   }
-  chapters: ExtractedChapter[]
+  /**
+   * The text in reading order, as groups of paragraphs. Each group starts on a
+   * new page. A PDF is one group; an EPUB has one per document, because its
+   * files are the book's own divisions.
+   */
+  sections: string[][]
 }
 
 /** Reports extraction progress from 0 to 1. */

@@ -6,6 +6,11 @@ export type Page = string[]
 /** Paragraphs longer than this many pages' worth of words get split at sentence ends. */
 const LONG_PARAGRAPH_FACTOR = 1.5
 
+/** Paginates each section separately, so every section starts on a new page. */
+export function paginateSections(sections: string[][], wordsPerPage: number): Page[] {
+  return sections.flatMap((paragraphs) => paginate(paragraphs, wordsPerPage))
+}
+
 /**
  * Splits paragraphs into pages of about `wordsPerPage` words.
  * Paragraphs are never cut, except ones far longer than a page, which are split

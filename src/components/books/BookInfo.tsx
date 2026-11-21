@@ -23,7 +23,6 @@ export function BookInfo({ book, onEdit, onDelete }: BookInfoProps) {
   const facts = [
     language,
     t('book.facts.pages', { count: book.totalPages, formatted: formatNumber(book.totalPages) }),
-    t('book.facts.chapters', { count: book.totalChapters, formatted: formatNumber(book.totalChapters) }),
     t('book.facts.words', { count: book.totalWords, formatted: formatNumber(book.totalWords) }),
     t('book.facts.addedAt', { date: formatDate(book.createdAt) }),
   ].filter(Boolean)

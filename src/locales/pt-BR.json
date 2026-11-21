@@ -55,8 +55,8 @@
       "description": "Importe um livro em PDF. Apenas o texto é extraído e salvo — o arquivo PDF não é armazenado."
     }
   },
-  "chapter": {
-    "label": "Capítulo {{number}}"
+  "page": {
+    "label": "Página {{number}}"
   },
   "toast": {
     "imported": "“{{title}}” foi adicionado à sua biblioteca.",
@@ -113,20 +113,11 @@
       "wordsPerPageHint": "Entre {{min}} e {{max}}. Parágrafos nunca são cortados."
     },
     "summary": {
-      "chapters": "Capítulos",
       "pages": "Páginas",
       "words": "Palavras"
     },
-    "chapters": {
-      "title": "Capítulos detectados",
-      "hint": "Junte um capítulo ao anterior ou remova partes que não fazem parte do livro.",
-      "size_one": "{{words}} pal. · {{count}} pág.",
-      "size_other": "{{words}} pal. · {{count}} pág.",
-      "merge": "Juntar {{chapter}} ao anterior",
-      "remove": "Remover {{chapter}}"
-    },
     "preview": {
-      "label": "Prévia da primeira página do capítulo selecionado"
+      "label": "Prévia"
     },
     "errors": {
       "unsupported": "Escolha um arquivo PDF ou EPUB.",
@@ -171,8 +162,6 @@
     "facts": {
       "pages_one": "{{formatted}} página",
       "pages_other": "{{formatted}} páginas",
-      "chapters_one": "{{formatted}} capítulo",
-      "chapters_other": "{{formatted}} capítulos",
       "words_one": "{{formatted}} palavra",
       "words_other": "{{formatted}} palavras",
       "addedAt": "Adicionado em {{date}}"
@@ -181,8 +170,6 @@
       "title": "Índice",
       "loadError": "Não foi possível carregar o índice.",
       "reading": "Lendo",
-      "page": "Pág. {{page}}",
-      "pages": "Pág. {{first}}–{{last}}",
       "words_one": "{{formatted}} palavra",
       "words_other": "{{formatted}} palavras"
     }
@@ -192,7 +179,6 @@
     "previous": "Anterior",
     "next": "Próxima",
     "navigation": "Navegação entre páginas",
-    "chapters": "Capítulos",
     "backToBook": "Voltar para o livro",
     "decreaseFont": "Diminuir texto",
     "increaseFont": "Aumentar texto",

@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { getCoverUrls, removeCover, uploadCover } from '@/services/coverService'
-import { mapBookRow, mapChapterRow } from '@/services/mappers'
-import type { Book, BookSummary, Chapter } from '@/types/book'
+import { mapBookRow } from '@/services/mappers'
+import type { Book, BookSummary } from '@/types/book'
 import type { TableRow } from '@/types/database'
 
 const BOOK_WITH_PROGRESS = '*, reading_progress(page_number, updated_at)'
@@ -41,18 +41,6 @@ export async function getBook(bookId: string): Promise<BookSummary | null> {
   return toBookSummary(data, coverUrls)
 }
 
-/** The book's chapters in reading order. */
-export async function listChapters(bookId: string): Promise<Chapter[]> {
-  const { data, error } = await supabase
-    .from('chapters')
-    .select('*')
-    .eq('book_id', bookId)
-    .order('position', { ascending: true })
-
-  if (error) throw error
-  return data.map(mapChapterRow)
-}
-
 export interface BookMetadataUpdate {
   title: string
   author: string | null
@@ -72,7 +60,7 @@ export class CoverUploadError extends Error {
 }
 
 /**
- * Updates a book's details and cover. The text (chapters and pages) never changes.
+ * Updates a book's details and cover. The text (its pages) never changes.
  * Old cover files are removed after the book points to the new state, so a failure
  * never leaves the book pointing at a missing file.
  */
@@ -104,7 +92,7 @@ export async function updateBook(
   }
 }
 
-/** Deletes a book with its chapters, pages and progress (cascade), plus its cover file. */
+/** Deletes a book with its pages and progress (cascade), plus its cover file. */
 export async function deleteBook(book: Pick<Book, 'id' | 'coverPath'>): Promise<void> {
   const { error } = await supabase.from('books').delete().eq('id', book.id)
   if (error) throw error
