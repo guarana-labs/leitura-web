@@ -10,6 +10,7 @@ import { PageIndex } from '@/components/books/PageIndex'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useBook } from '@/hooks/useBooks'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { usePageSummaries } from '@/hooks/useReader'
 
 export function BookDetailsPage() {
@@ -22,6 +23,7 @@ export function BookDetailsPage() {
   const [isEditOpen, setIsEditOpen] = useState(false)
 
   const book = bookQuery.data
+  useDocumentTitle(book?.title)
 
   return (
     <div className="flex flex-col gap-8">
