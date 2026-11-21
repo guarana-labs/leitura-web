@@ -1,4 +1,4 @@
-import { ArrowLeft, Minus, Plus } from 'lucide-react'
+import { ArrowLeft, Maximize, Minimize, Minus, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { paths } from '@/app/paths'
@@ -6,6 +6,7 @@ import { PageIndexSheet } from '@/components/reader/PageIndexSheet'
 import { ReaderFontMenu } from '@/components/reader/ReaderFontMenu'
 import { ReaderThemeMenu } from '@/components/reader/ReaderThemeMenu'
 import { Button } from '@/components/ui/button'
+import { useFullscreen } from '@/hooks/useFullscreen'
 import type { ReaderFontId } from '@/lib/readerFonts'
 import type { ReaderThemeId } from '@/lib/readerThemes'
 
@@ -38,6 +39,8 @@ export function ReaderTopBar({
   onIncreaseFont,
 }: ReaderTopBarProps) {
   const { t } = useTranslation()
+  const fullscreen = useFullscreen()
+  const fullscreenLabel = fullscreen.isFullscreen ? t('reader.exitFullscreen') : t('reader.enterFullscreen')
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
@@ -74,6 +77,19 @@ export function ReaderTopBar({
           </Button>
           <ReaderThemeMenu value={readerTheme} onChange={onReaderThemeChange} />
           <PageIndexSheet bookId={bookId} bookTitle={bookTitle} currentPage={currentPage} />
+          {/* Hidden where the browser doesn't allow it (Safari on iPhone). */}
+          {fullscreen.isSupported && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => void fullscreen.toggle()}
+              aria-label={fullscreenLabel}
+              aria-pressed={fullscreen.isFullscreen}
+              title={fullscreenLabel}
+            >
+              {fullscreen.isFullscreen ? <Minimize aria-hidden /> : <Maximize aria-hidden />}
+            </Button>
+          )}
         </div>
       </div>
     </header>

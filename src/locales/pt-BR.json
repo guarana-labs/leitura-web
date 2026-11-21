@@ -278,6 +278,8 @@
     "backToBook": "Voltar para o livro",
     "decreaseFont": "Diminuir texto",
     "increaseFont": "Aumentar texto",
+    "enterFullscreen": "Tela cheia",
+    "exitFullscreen": "Sair da tela cheia",
     "fonts": {
       "label": "Fonte",
       "sansHint": "Sem serifa, limpa e moderna",
