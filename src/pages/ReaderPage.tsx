@@ -9,6 +9,7 @@ import { ReaderPageSkeleton, ReaderPageView } from '@/components/reader/ReaderPa
 import { ReaderTopBar } from '@/components/reader/ReaderTopBar'
 import { Button } from '@/components/ui/button'
 import { useBook } from '@/hooks/useBooks'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { useKeyboardPaging } from '@/hooks/useKeyboardPaging'
 import { usePage, usePrefetchPages, useSaveProgress } from '@/hooks/useReader'
 import { useReaderSettings } from '@/hooks/useReaderSettings'
@@ -32,6 +33,8 @@ export function ReaderPage() {
   const book = bookQuery.data
   const totalPages = book?.totalPages ?? 0
   const isValidPage = Number.isInteger(pageNumber) && pageNumber >= 1 && pageNumber <= totalPages
+
+  useDocumentTitle(book?.title)
 
   const goToPage = useCallback(
     (target: number) => {
