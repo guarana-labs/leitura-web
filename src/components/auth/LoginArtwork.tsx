@@ -1,36 +1,37 @@
 import { useTranslation } from 'react-i18next'
-import { cn } from '@/lib/utils'
+import type { LoginImage } from '@/lib/loginImages'
 import { readerFontFamily } from '@/lib/readerFonts'
+import { cn } from '@/lib/utils'
 
-const NASA_URL = 'https://images.nasa.gov/details/PIA21647'
+interface LoginArtworkProps {
+  image: LoginImage
+  className?: string
+}
 
-/**
- * Jupiter photo for the login page (NASA/JPL-Caltech/SwRI/MSSS, PIA21647, public domain).
- * Nothing is drawn over it on desktop: the photo is the point.
- */
-export function LoginArtwork({ className }: { className?: string }) {
-  const { t } = useTranslation()
-
+/** The login photo, cropped to fill its box around the image's focal point. */
+export function LoginArtwork({ image, className }: LoginArtworkProps) {
   return (
     <div className={cn('relative overflow-hidden bg-black', className)}>
-      {/* Absolute, so the tall photo fills its box without stretching the page. */}
+      {/* Absolute, so a tall photo fills its box without stretching the page. */}
       <img
-        src="/images/jupiter-1722.jpg"
-        srcSet="/images/jupiter-860.jpg 860w, /images/jupiter-1722.jpg 1722w"
+        src={image.src}
+        srcSet={image.srcSet}
         sizes="(min-width: 1024px) 60vw, 100vw"
-        alt={t('auth.artwork.alt')}
-        className="absolute inset-0 size-full object-cover object-[0%_12%]"
+        alt={image.alt}
+        className="absolute inset-0 size-full object-cover"
+        style={{ objectPosition: image.focalPoint ?? 'center' }}
       />
     </div>
   )
 }
 
 /**
- * Sagan quote (in the reading font, a nod to what the app is for) and the photo credit.
+ * The photo's quote (or the default reading quote), in the reading font, and its credit.
  * White over the photo on phones; theme colours on the desktop form column.
  */
-export function LoginFooter({ className }: { className?: string }) {
+export function LoginFooter({ image, className }: LoginArtworkProps) {
   const { t } = useTranslation()
+  const quote = image.quote ?? { text: t('auth.defaultQuote.text'), author: t('auth.defaultQuote.author') }
 
   return (
     <footer className={cn('flex flex-col gap-4', className)}>
@@ -39,19 +40,23 @@ export function LoginFooter({ className }: { className?: string }) {
           className="text-[15px] leading-relaxed text-white/80 italic lg:text-muted-foreground"
           style={{ fontFamily: readerFontFamily('serif') }}
         >
-          {t('auth.artwork.quote')}
+          “{quote.text}”
         </blockquote>
-        <figcaption className="mt-1 text-xs text-white/60 lg:text-muted-foreground/80">— Carl Sagan</figcaption>
+        <figcaption className="mt-1 text-xs text-white/60 lg:text-muted-foreground/80">— {quote.author}</figcaption>
       </figure>
       <p className="text-[11px] leading-snug text-white/45 lg:text-muted-foreground/60">
-        <a
-          href={NASA_URL}
-          target="_blank"
-          rel="noreferrer"
-          className="underline decoration-current/30 underline-offset-2 transition-colors hover:text-white/80 lg:hover:text-foreground"
-        >
-          {t('auth.artwork.credit')}
-        </a>
+        {image.credit.url ? (
+          <a
+            href={image.credit.url}
+            target="_blank"
+            rel="noreferrer"
+            className="underline decoration-current/30 underline-offset-2 transition-colors hover:text-white/80 lg:hover:text-foreground"
+          >
+            {image.credit.text}
+          </a>
+        ) : (
+          image.credit.text
+        )}
       </p>
     </footer>
   )

@@ -17,10 +17,9 @@
     "signOut": "Sair"
   },
   "auth": {
-    "artwork": {
-      "alt": "Nuvens de Júpiter fotografadas pela sonda Juno, da NASA",
-      "quote": "“Um livro é a prova de que os seres humanos são capazes de fazer mágica.”",
-      "credit": "Foto: NASA/JPL-Caltech/SwRI/MSSS · Gerald Eichstädt e Seán Doran"
+    "defaultQuote": {
+      "text": "Um livro é a prova de que os seres humanos são capazes de fazer mágica.",
+      "author": "Carl Sagan"
     },
     "views": {
       "signIn": {

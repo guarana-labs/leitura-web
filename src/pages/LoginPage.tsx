@@ -5,6 +5,7 @@ import { AuthForm } from '@/components/auth/AuthForm'
 import { LoginArtwork, LoginFooter } from '@/components/auth/LoginArtwork'
 import { Button } from '@/components/ui/button'
 import { useTheme } from '@/hooks/useTheme'
+import { getLoginImage } from '@/lib/loginImages'
 
 type AuthView = 'signIn' | 'signUp'
 
@@ -17,12 +18,14 @@ export function LoginPage() {
   const { t } = useTranslation()
   const { theme, toggleTheme } = useTheme()
   const [view, setView] = useState<AuthView>('signIn')
+  // Chosen once per visit, so the photo doesn't change while switching views.
+  const [image] = useState(getLoginImage)
 
   return (
     <div className="relative grid min-h-svh lg:grid-cols-[3fr_2fr]">
       {/* Phones: full-screen background. Desktop: the left column. */}
       <div className="fixed inset-0 lg:relative lg:inset-auto">
-        <LoginArtwork className="size-full" />
+        <LoginArtwork image={image} className="size-full" />
         <div aria-hidden className="absolute inset-0 bg-black/55 lg:hidden" />
       </div>
 
@@ -67,7 +70,7 @@ export function LoginPage() {
           </div>
         </main>
 
-        <LoginFooter className="mx-auto w-full max-w-sm lg:mx-0" />
+        <LoginFooter image={image} className="mx-auto w-full max-w-sm lg:mx-0" />
       </div>
     </div>
   )
