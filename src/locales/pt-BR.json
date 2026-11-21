@@ -59,7 +59,7 @@
     "signInAction": "Entrar",
     "signUpAction": "Criar conta",
     "email": "E-mail",
-    "emailPlaceholder": "voce@exemplo.com",
+    "emailPlaceholder": "seu@email.com",
     "password": "Senha",
     "confirmPassword": "Confirmar senha",
     "passwordHint_one": "Mínimo de {{count}} caractere.",
