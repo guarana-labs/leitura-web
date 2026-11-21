@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { CircleAlert, LoaderCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
@@ -35,6 +35,14 @@ export function ResetPasswordPage() {
   const { t } = useTranslation()
   const { session, isLoading } = useAuth()
   const [linkError] = useState(hasLinkError)
+
+  // Supabase reads the recovery token from the URL and erases it, but leaves a bare "#".
+  // Once it's done (auth no longer loading), drop that leftover for a clean address.
+  useEffect(() => {
+    if (!isLoading && window.location.href.endsWith('#')) {
+      window.history.replaceState(window.history.state, '', window.location.pathname + window.location.search)
+    }
+  }, [isLoading])
 
   if (isLoading) {
     return (
