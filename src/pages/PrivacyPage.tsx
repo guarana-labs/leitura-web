@@ -27,7 +27,7 @@ export function PrivacyPage() {
     : { to: paths.login, label: t('privacy.backToLogin') }
 
   return (
-    <div className="mx-auto w-full max-w-prose px-5 py-10 sm:py-16">
+    <div className="mx-auto w-full max-w-3xl px-5 py-10 sm:px-8 sm:py-16">
       <Link
         to={back.to}
         className="flex w-fit items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
