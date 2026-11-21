@@ -2,6 +2,7 @@
 export const paths = {
   login: '/login',
   resetPassword: '/reset-password',
+  privacy: '/privacy',
   dashboard: '/books',
   importBook: '/books/import',
   book: (bookId: string) => `/books/${bookId}`,

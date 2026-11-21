@@ -102,6 +102,47 @@
   "page": {
     "label": "Página {{number}}"
   },
+  "privacy": {
+    "title": "Privacidade",
+    "updatedAt": "Última atualização: 21 de novembro de 2026",
+    "intro": "O Leitura é um projeto pessoal, usado por mim e por alguns amigos. Esta página explica, de forma simples, quais dados ficam guardados e o que você pode fazer com eles.",
+    "backToLibrary": "Voltar para a biblioteca",
+    "backToLogin": "Voltar para o login",
+    "sections": [
+      {
+        "title": "O que fica guardado",
+        "items": [
+          "Sua conta: e-mail e senha. A senha não fica guardada em texto legível — nem eu consigo vê-la.",
+          "Seus livros: título, autor, descrição, idioma, capa e o texto de cada página. O arquivo original (PDF ou EPUB) não é armazenado.",
+          "Seu progresso de leitura: a página em que você parou e quando leu pela última vez."
+        ]
+      },
+      {
+        "title": "O que fica só no seu navegador",
+        "paragraphs": [
+          "Preferências como tema, fonte, tamanho do texto e modo de exibição da biblioteca ficam salvas apenas no seu navegador, junto com a sua sessão de login (para você não precisar entrar toda vez)."
+        ]
+      },
+      {
+        "title": "Quem tem acesso",
+        "paragraphs": [
+          "Seus livros e seu progresso só aparecem para a sua conta. Os dados ficam no Supabase (banco de dados e login) e o site é servido pela Cloudflare.",
+          "Como responsável pelo projeto, tenho acesso técnico ao banco de dados, mas não olho seus livros nem seus dados.",
+          "Não há anúncios, rastreadores ou ferramentas de análise, e nenhum dado é vendido ou compartilhado."
+        ]
+      },
+      {
+        "title": "Excluir sua conta",
+        "paragraphs": [
+          "Você pode excluir sua conta a qualquer momento pelo menu da conta, em “Excluir conta”. Isso apaga permanentemente seu login, seus livros, capas e progresso de leitura."
+        ]
+      }
+    ],
+    "contact": {
+      "title": "Dúvidas",
+      "text": "Fale comigo pelo Instagram:"
+    }
+  },
   "toast": {
     "imported": "“{{title}}” foi adicionado à sua biblioteca.",
     "importedWithoutCover": "“{{title}}” foi adicionado, mas a capa não pôde ser enviada. Você pode adicioná-la em Editar.",
