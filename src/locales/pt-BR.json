@@ -29,11 +29,32 @@
       "signUp": {
         "title": "Crie sua conta",
         "subtitle": "Monte sua biblioteca e leia uma página de cada vez."
+      },
+      "forgot": {
+        "title": "Recuperar senha",
+        "subtitle": "Informe seu e-mail e enviaremos um link para você criar uma nova senha."
       }
     },
     "switch": {
       "noAccount": "Ainda não tem uma conta?",
       "hasAccount": "Já tem uma conta?"
+    },
+    "forgot": {
+      "link": "Esqueceu a senha?",
+      "action": "Enviar link de recuperação",
+      "back": "Voltar para o login",
+      "sent": "Se existir uma conta com {{email}}, enviamos um link para você criar uma nova senha.",
+      "sentHint": "O link vale por pouco tempo. Se não encontrar o e-mail, confira a caixa de spam.",
+      "tryAgain": "Usar outro e-mail"
+    },
+    "reset": {
+      "title": "Crie uma nova senha",
+      "subtitle": "Escolha a nova senha da conta {{email}}.",
+      "newPassword": "Nova senha",
+      "action": "Salvar nova senha",
+      "invalidTitle": "Link inválido ou expirado",
+      "invalidSubtitle": "Este link de recuperação já foi usado ou expirou. Peça um novo para redefinir sua senha.",
+      "requestNewLink": "Pedir um novo link"
     },
     "signInAction": "Entrar",
     "signUpAction": "Criar conta",
@@ -58,7 +79,9 @@
       "generic": "Algo deu errado. Tente novamente.",
       "passwordTooShort_one": "A senha precisa ter pelo menos {{count}} caractere.",
       "passwordTooShort_other": "A senha precisa ter pelo menos {{count}} caracteres.",
-      "passwordMismatch": "As senhas não coincidem."
+      "passwordMismatch": "As senhas não coincidem.",
+      "samePassword": "A nova senha precisa ser diferente da atual.",
+      "recoveryLinkInvalid": "Este link de recuperação expirou. Peça um novo."
     }
   },
   "dashboard": {
@@ -83,7 +106,8 @@
     "imported": "“{{title}}” foi adicionado à sua biblioteca.",
     "importedWithoutCover": "“{{title}}” foi adicionado, mas a capa não pôde ser enviada. Você pode adicioná-la em Editar.",
     "updated": "Alterações em “{{title}}” salvas.",
-    "deleted": "“{{title}}” foi excluído."
+    "deleted": "“{{title}}” foi excluído.",
+    "passwordUpdated": "Senha atualizada."
   },
   "languages": {
     "other": "Outros"

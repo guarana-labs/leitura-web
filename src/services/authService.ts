@@ -22,6 +22,22 @@ export async function signUp({ email, password }: Credentials): Promise<SignUpRe
   return { signedIn: data.session !== null }
 }
 
+/**
+ * Emails a password recovery link. The link opens `redirectTo` with a temporary
+ * session, where the user picks a new password (see `updatePassword`).
+ * `redirectTo` must be listed in Supabase → Authentication → URL Configuration.
+ */
+export async function requestPasswordReset(email: string, redirectTo: string): Promise<void> {
+  const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo })
+  if (error) throw error
+}
+
+/** Sets a new password for the signed-in user (including the temporary recovery session). */
+export async function updatePassword(password: string): Promise<void> {
+  const { error } = await supabase.auth.updateUser({ password })
+  if (error) throw error
+}
+
 export async function signOut(): Promise<void> {
   const { error } = await supabase.auth.signOut()
   if (error) throw error
