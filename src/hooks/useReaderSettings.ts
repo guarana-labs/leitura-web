@@ -1,5 +1,7 @@
 import { useCallback, useState } from 'react'
+import { useTheme } from '@/hooks/useTheme'
 import { DEFAULT_READER_FONT, isReaderFontId, type ReaderFontId } from '@/lib/readerFonts'
+import { defaultReaderTheme, isReaderThemeId, type ReaderThemeId } from '@/lib/readerThemes'
 
 /** Reader font sizes in pixels; the index is what gets stored. */
 const READER_FONT_SIZES = [16, 18, 20, 22, 24] as const
@@ -7,6 +9,7 @@ const DEFAULT_FONT_SIZE_INDEX = 1
 
 const FONT_SIZE_KEY = 'leitura-reader-font-size'
 const FONT_KEY = 'leitura-reader-font'
+const THEME_KEY = 'leitura-reader-theme'
 
 function readStorage(key: string): string | null {
   try {
@@ -39,10 +42,20 @@ function readStoredFont(): ReaderFontId {
   return isReaderFontId(stored) ? stored : DEFAULT_READER_FONT
 }
 
-/** Per-browser reader preferences: font and font size. */
+/** Per-browser reader preferences: font, font size and colour theme. */
 export function useReaderSettings() {
+  const { theme: appTheme } = useTheme()
   const [fontSizeIndex, setFontSizeIndex] = useState(readStoredSizeIndex)
   const [font, setFontState] = useState<ReaderFontId>(readStoredFont)
+  const [readerTheme, setReaderThemeState] = useState<ReaderThemeId>(() => {
+    const stored = readStorage(THEME_KEY)
+    return isReaderThemeId(stored) ? stored : defaultReaderTheme(appTheme)
+  })
+
+  const setReaderTheme = useCallback((next: ReaderThemeId) => {
+    setReaderThemeState(next)
+    writeStorage(THEME_KEY, next)
+  }, [])
 
   const changeFontSize = useCallback((delta: number) => {
     setFontSizeIndex((current) => {
@@ -60,6 +73,8 @@ export function useReaderSettings() {
   return {
     font,
     setFont,
+    readerTheme,
+    setReaderTheme,
     fontSize: READER_FONT_SIZES[fontSizeIndex],
     canDecrease: fontSizeIndex > 0,
     canIncrease: fontSizeIndex < READER_FONT_SIZES.length - 1,

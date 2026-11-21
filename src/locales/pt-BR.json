@@ -194,6 +194,15 @@
       "serifHint": "Com serifa, feita para livros digitais",
       "legibleHint": "Máxima legibilidade, letras bem distintas"
     },
+    "themes": {
+      "label": "Tema de leitura",
+      "paper": "Papel",
+      "paperHint": "Claro e suave, para o dia",
+      "sepia": "Sépia",
+      "sepiaHint": "Tom quente, mais descanso para os olhos",
+      "night": "Noite",
+      "nightHint": "Escuro sem brilho excessivo, para a noite"
+    },
     "end": "Fim",
     "loadError": "Não foi possível carregar esta página."
   },

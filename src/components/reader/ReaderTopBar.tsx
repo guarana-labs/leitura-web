@@ -1,12 +1,13 @@
-import { ArrowLeft, Minus, Moon, Plus, Sun } from 'lucide-react'
+import { ArrowLeft, Minus, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { paths } from '@/app/paths'
 import { PageIndexSheet } from '@/components/reader/PageIndexSheet'
 import { ReaderFontMenu } from '@/components/reader/ReaderFontMenu'
+import { ReaderThemeMenu } from '@/components/reader/ReaderThemeMenu'
 import { Button } from '@/components/ui/button'
-import { useTheme } from '@/hooks/useTheme'
 import type { ReaderFontId } from '@/lib/readerFonts'
+import type { ReaderThemeId } from '@/lib/readerThemes'
 
 interface ReaderTopBarProps {
   bookId: string
@@ -14,6 +15,8 @@ interface ReaderTopBarProps {
   currentPage: number
   font: ReaderFontId
   onFontChange: (font: ReaderFontId) => void
+  readerTheme: ReaderThemeId
+  onReaderThemeChange: (theme: ReaderThemeId) => void
   canDecreaseFont: boolean
   canIncreaseFont: boolean
   onDecreaseFont: () => void
@@ -27,13 +30,14 @@ export function ReaderTopBar({
   currentPage,
   font,
   onFontChange,
+  readerTheme,
+  onReaderThemeChange,
   canDecreaseFont,
   canIncreaseFont,
   onDecreaseFont,
   onIncreaseFont,
 }: ReaderTopBarProps) {
   const { t } = useTranslation()
-  const { theme, toggleTheme } = useTheme()
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
@@ -68,9 +72,7 @@ export function ReaderTopBar({
           >
             <Plus aria-hidden />
           </Button>
-          <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label={t('nav.toggleTheme')}>
-            {theme === 'dark' ? <Sun aria-hidden /> : <Moon aria-hidden />}
-          </Button>
+          <ReaderThemeMenu value={readerTheme} onChange={onReaderThemeChange} />
           <PageIndexSheet bookId={bookId} bookTitle={bookTitle} currentPage={currentPage} />
         </div>
       </div>

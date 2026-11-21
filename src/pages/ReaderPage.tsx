@@ -13,6 +13,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { useKeyboardPaging } from '@/hooks/useKeyboardPaging'
 import { usePage, usePrefetchPages, useSaveProgress } from '@/hooks/useReader'
 import { useReaderSettings } from '@/hooks/useReaderSettings'
+import { useReaderThemeClass } from '@/hooks/useReaderThemeClass'
 import { readerFontFamily } from '@/lib/readerFonts'
 
 /**
@@ -29,6 +30,7 @@ export function ReaderPage() {
   const pageQuery = usePage(bookId, pageNumber)
   const saveProgress = useSaveProgress(bookId)
   const settings = useReaderSettings()
+  useReaderThemeClass(settings.readerTheme)
 
   const book = bookQuery.data
   const totalPages = book?.totalPages ?? 0
@@ -93,13 +95,15 @@ export function ReaderPage() {
         currentPage={pageNumber}
         font={settings.font}
         onFontChange={settings.setFont}
+        readerTheme={settings.readerTheme}
+        onReaderThemeChange={settings.setReaderTheme}
         canDecreaseFont={settings.canDecrease}
         canIncreaseFont={settings.canIncrease}
         onDecreaseFont={settings.decreaseFontSize}
         onIncreaseFont={settings.increaseFontSize}
       />
 
-      <main className="mx-auto w-full max-w-[42rem] flex-1 px-5 py-10 sm:px-8 sm:py-14">
+      <main className="w-full flex-1 px-5 py-10 sm:px-8 sm:py-14">
         {pageQuery.isPending ? (
           <ReaderPageSkeleton />
         ) : pageQuery.isError || !pageQuery.data ? (

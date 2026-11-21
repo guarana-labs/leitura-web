@@ -14,8 +14,11 @@ export function ReaderPageView({ paragraphs, fontSize, fontFamily, isLastPage }:
   const { t } = useTranslation()
 
   return (
-    <article className="flex flex-col" style={{ fontSize: `${fontSize}px`, fontFamily }}>
-      <div className="flex flex-col gap-[1em] leading-[1.8] text-pretty">
+    // Width in `em` of the reading text, so lines stay ~65 characters (the usual 50–75 range)
+    // at every font size. Measured: Literata ≈ 63, Geist ≈ 66, Atkinson ≈ 67 per line.
+    // (`ch` was uneven: Literata's wide "0" made its lines much shorter than the sans fonts'.)
+    <article className="mx-auto flex w-full max-w-[31em] flex-col" style={{ fontSize: `${fontSize}px`, fontFamily }}>
+      <div className="flex flex-col gap-[1em] leading-[1.65] text-pretty">
         {paragraphs.map((paragraph, index) => (
           <p key={index}>{paragraph}</p>
         ))}
@@ -32,7 +35,7 @@ export function ReaderPageView({ paragraphs, fontSize, fontFamily, isLastPage }:
 
 export function ReaderPageSkeleton() {
   return (
-    <div className="flex flex-col gap-3" aria-hidden>
+    <div className="mx-auto flex w-full max-w-[42rem] flex-col gap-3" aria-hidden>
       {Array.from({ length: 12 }, (_, index) => (
         <Skeleton key={index} className="h-4" style={{ width: `${index % 4 === 3 ? 60 : 100}%` }} />
       ))}

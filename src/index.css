@@ -127,6 +127,74 @@
     --sidebar-ring: #3291ff;
 }
 
+/*
+ * Reader themes: applied to <html> only while a book is open (see ReaderPage), so the
+ * bars, menus and side panel match the page. Softer than pure black/white for long reading;
+ * body text stays well above WCAG AA (Paper ≈ 13:1, Sepia ≈ 10:1, Night ≈ 11.5:1).
+ * `html.` gives these priority over `.dark`.
+ */
+html.reader-paper {
+    color-scheme: light;
+    --background: #fbf8f1;
+    --foreground: #2b2a27;
+    --card: #fbf8f1;
+    --card-foreground: #2b2a27;
+    --popover: #fdfbf6;
+    --popover-foreground: #2b2a27;
+    --primary: #2b2a27;
+    --primary-foreground: #fbf8f1;
+    --secondary: #f1ede3;
+    --secondary-foreground: #2b2a27;
+    --muted: #f1ede3;
+    --muted-foreground: #6b675e;
+    --accent: #ece6d8;
+    --accent-foreground: #2b2a27;
+    --border: #e6e0d2;
+    --input: #ddd6c6;
+}
+
+html.reader-sepia {
+    color-scheme: light;
+    --background: #f4ecd8;
+    --foreground: #433422;
+    --card: #f4ecd8;
+    --card-foreground: #433422;
+    --popover: #f8f2e3;
+    --popover-foreground: #433422;
+    --primary: #433422;
+    --primary-foreground: #f4ecd8;
+    --secondary: #ebe1c8;
+    --secondary-foreground: #433422;
+    --muted: #ebe1c8;
+    --muted-foreground: #6e5f48;
+    --accent: #e6dabd;
+    --accent-foreground: #433422;
+    --border: #dfd2b3;
+    --input: #d6c7a5;
+}
+
+html.reader-night {
+    color-scheme: dark;
+    --background: #1c1b19;
+    --foreground: #d6d2c9;
+    --card: #1c1b19;
+    --card-foreground: #d6d2c9;
+    --popover: #232220;
+    --popover-foreground: #d6d2c9;
+    --primary: #d6d2c9;
+    --primary-foreground: #1c1b19;
+    --secondary: #262522;
+    --secondary-foreground: #d6d2c9;
+    --muted: #262522;
+    --muted-foreground: #9a958b;
+    --accent: #2c2b28;
+    --accent-foreground: #d6d2c9;
+    --border: #33312d;
+    --input: #3a3834;
+    --ring: #6a9fd8;
+    --link: #8ab4e8;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
