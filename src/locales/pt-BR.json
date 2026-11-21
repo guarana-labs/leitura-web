@@ -17,8 +17,24 @@
     "signOut": "Sair"
   },
   "auth": {
-    "signInTab": "Entrar",
-    "signUpTab": "Criar conta",
+    "defaultQuote": {
+      "text": "Um livro é a prova de que os seres humanos são capazes de fazer mágica.",
+      "author": "Carl Sagan"
+    },
+    "views": {
+      "signIn": {
+        "title": "Bem-vindo de volta",
+        "subtitle": "Entre para continuar sua leitura."
+      },
+      "signUp": {
+        "title": "Crie sua conta",
+        "subtitle": "Monte sua biblioteca e leia uma página de cada vez."
+      }
+    },
+    "switch": {
+      "noAccount": "Ainda não tem uma conta?",
+      "hasAccount": "Já tem uma conta?"
+    },
     "signInAction": "Entrar",
     "signUpAction": "Criar conta",
     "email": "E-mail",

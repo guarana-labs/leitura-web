@@ -1,60 +1,76 @@
 import { useState } from 'react'
 import { BookOpen, Moon, Sun } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { AuthForm, type AuthMode } from '@/components/auth/AuthForm'
+import { AuthForm } from '@/components/auth/AuthForm'
+import { LoginArtwork, LoginFooter } from '@/components/auth/LoginArtwork'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useTheme } from '@/hooks/useTheme'
+import { getLoginImage } from '@/lib/loginImages'
 
+type AuthView = 'signIn' | 'signUp'
+
+/**
+ * Desktop: photo (60%) on the left, an editorial form column (40%) on the right,
+ * framed by the wordmark at the top and the quote + photo credit at the bottom.
+ * Phones: the photo fills the screen behind a form card.
+ */
 export function LoginPage() {
   const { t } = useTranslation()
   const { theme, toggleTheme } = useTheme()
-  const [mode, setMode] = useState<AuthMode>('signIn')
+  const [view, setView] = useState<AuthView>('signIn')
+  // Chosen once per visit, so the photo doesn't change while switching views.
+  const [image] = useState(getLoginImage)
 
   return (
-    <div className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden px-4 py-12">
-      {/* Subtle grid backdrop that fades out towards the edges. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_65%)]"
-      />
+    <div className="relative grid min-h-svh lg:grid-cols-[3fr_2fr]">
+      {/* Phones: full-screen background. Desktop: the left column. */}
+      <div className="fixed inset-0 lg:relative lg:inset-auto">
+        <LoginArtwork image={image} className="size-full" />
+        <div aria-hidden className="absolute inset-0 bg-black/55 lg:hidden" />
+      </div>
 
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={toggleTheme}
-        aria-label={t('nav.toggleTheme')}
-        className="absolute top-4 right-4"
-      >
-        {theme === 'dark' ? <Sun aria-hidden /> : <Moon aria-hidden />}
-      </Button>
-
-      <div className="relative w-full max-w-sm">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 flex size-11 items-center justify-center rounded-xl border bg-card shadow-sm">
+      <div className="relative flex min-h-svh flex-col gap-10 px-5 py-5 sm:px-8 lg:bg-background lg:px-14 lg:py-8 xl:px-20">
+        <header className="flex items-center justify-between text-white lg:text-foreground">
+          <div className="flex items-center gap-2 font-semibold tracking-tight">
             <BookOpen className="size-5" aria-hidden />
+            {t('app.name')}
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight">{t('app.name')}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{t('app.tagline')}</p>
-        </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            aria-label={t('nav.toggleTheme')}
+            className="text-white hover:bg-white/10 hover:text-white lg:text-foreground lg:hover:bg-muted lg:hover:text-foreground"
+          >
+            {theme === 'dark' ? <Sun aria-hidden /> : <Moon aria-hidden />}
+          </Button>
+        </header>
 
-        <Card className="shadow-lg">
-          <CardContent>
-            <Tabs value={mode} onValueChange={(value) => setMode(value as AuthMode)}>
-              <TabsList className="mb-4 w-full">
-                <TabsTrigger value="signIn">{t('auth.signInTab')}</TabsTrigger>
-                <TabsTrigger value="signUp">{t('auth.signUpTab')}</TabsTrigger>
-              </TabsList>
-              <TabsContent value="signIn">
-                <AuthForm mode="signIn" />
-              </TabsContent>
-              <TabsContent value="signUp">
-                <AuthForm mode="signUp" />
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+        <main className="flex flex-1 items-center">
+          {/* A card on phones (over the photo); plain column on desktop. */}
+          <div className="mx-auto w-full max-w-sm rounded-xl border bg-card p-6 text-card-foreground shadow-lg lg:mx-0 lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
+            <h1 className="text-2xl font-semibold tracking-tight lg:text-3xl">{t(`auth.views.${view}.title`)}</h1>
+            <p className="mt-2 text-sm text-muted-foreground">{t(`auth.views.${view}.subtitle`)}</p>
+
+            <div className="mt-8">
+              {/* Keyed so switching between sign in and sign up starts with a clean form. */}
+              <AuthForm key={view} mode={view} />
+            </div>
+
+            <p className="mt-6 text-center text-sm text-muted-foreground lg:text-left">
+              {view === 'signIn' ? t('auth.switch.noAccount') : t('auth.switch.hasAccount')}{' '}
+              <button
+                type="button"
+                onClick={() => setView(view === 'signIn' ? 'signUp' : 'signIn')}
+                className="font-medium text-foreground underline-offset-4 hover:underline"
+              >
+                {view === 'signIn' ? t('auth.signUpAction') : t('auth.signInAction')}
+              </button>
+            </p>
+          </div>
+        </main>
+
+        <LoginFooter image={image} className="mx-auto w-full max-w-sm lg:mx-0" />
       </div>
     </div>
   )
