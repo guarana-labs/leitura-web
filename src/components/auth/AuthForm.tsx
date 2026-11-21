@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { CircleAlert, LoaderCircle } from 'lucide-react'
+import { CircleAlert, CircleCheck, LoaderCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { PasswordInput } from '@/components/auth/PasswordInput'
 import { Button } from '@/components/ui/button'
@@ -13,7 +13,7 @@ export type AuthMode = 'signIn' | 'signUp'
 /** Matches Supabase's default minimum password length. */
 const MIN_PASSWORD_LENGTH = 6
 
-type FormMessage = { kind: 'error' | 'info'; text: string }
+type FormMessage = { kind: 'error' | 'success'; text: string }
 
 interface AuthFormProps {
   mode: AuthMode
@@ -61,8 +61,12 @@ export function AuthForm({ mode, onForgotPassword }: AuthFormProps) {
     setMessage(null)
     try {
       if (isSignUp) {
-        const { signedIn } = await signUp({ email, password })
-        if (!signedIn) setMessage({ kind: 'info', text: t('auth.confirmEmailSent') })
+        const { signedIn, alreadyRegistered } = await signUp({ email, password })
+        if (alreadyRegistered) {
+          setMessage({ kind: 'error', text: t('auth.errors.emailInUse') })
+        } else if (!signedIn) {
+          setMessage({ kind: 'success', text: t('auth.confirmEmailSent', { email: email.trim() }) })
+        }
       } else {
         await signIn({ email, password })
       }
@@ -136,10 +140,14 @@ export function AuthForm({ mode, onForgotPassword }: AuthFormProps) {
           className={
             message.kind === 'error'
               ? 'flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive'
-              : 'rounded-md border bg-muted px-3 py-2 text-sm text-muted-foreground'
+              : 'flex items-start gap-2 rounded-md border border-emerald-600/30 bg-emerald-600/10 px-3 py-2 text-sm text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-300'
           }
         >
-          {message.kind === 'error' && <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />}
+          {message.kind === 'error' ? (
+            <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
+          ) : (
+            <CircleCheck className="mt-0.5 size-4 shrink-0" aria-hidden />
+          )}
           <span>{message.text}</span>
         </div>
       )}

@@ -66,10 +66,10 @@
     "passwordHint_other": "Mínimo de {{count}} caracteres.",
     "showPassword": "Mostrar senha",
     "hidePassword": "Ocultar senha",
-    "confirmEmailSent": "Conta criada. Confirme seu e-mail para entrar.",
+    "confirmEmailSent": "Conta criada! Enviamos um link de confirmação para {{email}}. Confirme seu e-mail para entrar.",
     "errors": {
       "invalidCredentials": "E-mail ou senha incorretos.",
-      "emailInUse": "Já existe uma conta com este e-mail.",
+      "emailInUse": "Já existe uma conta com este e-mail. Entre com ela ou use “Esqueceu a senha?”.",
       "weakPassword": "Senha muito fraca. Escolha uma senha mais forte.",
       "invalidEmail": "Informe um e-mail válido.",
       "rateLimited": "Muitas tentativas. Aguarde um pouco e tente novamente.",

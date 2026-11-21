@@ -9,6 +9,12 @@ export interface Credentials {
 export interface SignUpResult {
   /** False when the Supabase project still requires email confirmation. */
   signedIn: boolean
+  /**
+   * True when the email already has an account. With email confirmation on, Supabase
+   * doesn't return an error for this (to avoid revealing who is registered): it answers
+   * with a placeholder user that has no identities and sends no email.
+   */
+  alreadyRegistered: boolean
 }
 
 export async function signIn({ email, password }: Credentials): Promise<void> {
@@ -19,7 +25,10 @@ export async function signIn({ email, password }: Credentials): Promise<void> {
 export async function signUp({ email, password }: Credentials): Promise<SignUpResult> {
   const { data, error } = await supabase.auth.signUp({ email: email.trim(), password })
   if (error) throw error
-  return { signedIn: data.session !== null }
+  return {
+    signedIn: data.session !== null,
+    alreadyRegistered: data.session === null && data.user?.identities?.length === 0,
+  }
 }
 
 /**
