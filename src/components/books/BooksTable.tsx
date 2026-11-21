@@ -27,7 +27,7 @@ export function BooksTable({ books }: BooksTableProps) {
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead className="pl-4">{t('books.columns.book')}</TableHead>
-              <TableHead className="w-48">{t('books.columns.progress')}</TableHead>
+              <TableHead className="hidden w-48 sm:table-cell">{t('books.columns.progress')}</TableHead>
               <TableHead className="hidden text-right md:table-cell">{t('books.columns.pages')}</TableHead>
               <TableHead className="hidden lg:table-cell">{t('books.columns.lastRead')}</TableHead>
               <TableHead className="hidden lg:table-cell">{t('books.columns.addedAt')}</TableHead>
@@ -39,25 +39,28 @@ export function BooksTable({ books }: BooksTableProps) {
           <TableBody>
             {books.map((book) => (
               <TableRow key={book.id} className="cursor-pointer" onClick={() => navigate(paths.book(book.id))}>
-                <TableCell className="pl-4">
+                {/* w-full + max-w-0 lets the cell shrink, so long titles truncate instead of widening the table. */}
+                <TableCell className="w-full max-w-0 pl-4">
                   <div className="flex items-center gap-3">
                     <BookCover title={book.title} url={book.coverUrl} className="w-10" />
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       {/* A real link keeps keyboard and middle-click navigation working. */}
                       <Link
                         to={paths.book(book.id)}
                         onClick={(event) => event.stopPropagation()}
-                        className="block max-w-[16rem] truncate font-medium hover:underline sm:max-w-sm"
+                        className="block truncate font-medium hover:underline"
                       >
                         {book.title}
                       </Link>
-                      <p className="max-w-[16rem] truncate text-sm text-muted-foreground sm:max-w-sm">
-                        {book.author ?? t('books.unknownAuthor')}
-                      </p>
+                      <p className="truncate text-sm text-muted-foreground">{book.author ?? t('books.unknownAuthor')}</p>
+                      {/* On phones the progress column is hidden, so progress is shown here instead. */}
+                      <div className="mt-1.5 sm:hidden">
+                        <BookProgress currentPage={book.currentPage} totalPages={book.totalPages} />
+                      </div>
                     </div>
                   </div>
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden sm:table-cell">
                   <BookProgress currentPage={book.currentPage} totalPages={book.totalPages} />
                 </TableCell>
                 <TableCell className="hidden text-right font-mono text-sm text-muted-foreground tabular-nums md:table-cell">

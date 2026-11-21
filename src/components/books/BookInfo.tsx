@@ -38,10 +38,11 @@ export function BookInfo({ book, onEdit, onDelete }: BookInfoProps) {
         </div>
 
         <ul className="flex flex-wrap gap-x-2 gap-y-1 text-sm text-muted-foreground">
+          {/* The separator trails each item, so a wrapped line never starts with "·". */}
           {facts.map((fact, index) => (
             <li key={index} className="flex items-center gap-2">
-              {index > 0 && <span aria-hidden>·</span>}
               {fact}
+              {index < facts.length - 1 && <span aria-hidden>·</span>}
             </li>
           ))}
         </ul>
