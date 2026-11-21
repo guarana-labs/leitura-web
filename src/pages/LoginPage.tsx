@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router'
 import { AuthForm } from '@/components/auth/AuthForm'
 import { AuthShell } from '@/components/auth/AuthShell'
 import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm'
@@ -9,7 +10,11 @@ type AuthView = 'signIn' | 'signUp' | 'forgot'
 
 export function LoginPage() {
   const { t } = useTranslation()
-  const [view, setView] = useState<AuthView>('signIn')
+  const location = useLocation()
+  // Other pages can open the recovery form directly (e.g. after an expired reset link).
+  const [view, setView] = useState<AuthView>(() =>
+    (location.state as { view?: AuthView } | null)?.view === 'forgot' ? 'forgot' : 'signIn',
+  )
 
   return (
     <AuthShell>

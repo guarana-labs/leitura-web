@@ -9,6 +9,7 @@ import { ImportBookPage } from '@/pages/ImportBookPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { ReaderPage } from '@/pages/ReaderPage'
+import { ResetPasswordPage } from '@/pages/ResetPasswordPage'
 
 export const router = createBrowserRouter([
   {
@@ -31,5 +32,8 @@ export const router = createBrowserRouter([
       { path: '/books/:bookId/read/:pageNumber', element: <ReaderPage /> },
     ],
   },
+  // Outside both guards: the recovery link signs the user in temporarily, and the page
+  // must stay put (not redirect to the library) until a new password is chosen.
+  { path: paths.resetPassword, element: <ResetPasswordPage /> },
   { path: '*', element: <NotFoundPage /> },
 ])
