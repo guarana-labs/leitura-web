@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import type { PageSummary } from '@/types/book'
 import { formatNumber } from '@/utils/format'
 
-const PAGES_PER_GROUP = 20
+const PAGES_PER_GROUP = 10
 
 interface PaginatedPageIndexProps {
   bookId: string
