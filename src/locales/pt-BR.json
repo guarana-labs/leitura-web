@@ -116,7 +116,7 @@
       {
         "title": "O que fica guardado",
         "items": [
-          "Sua conta: e-mail e senha. A senha não fica guardada em texto legível — nem eu consigo vê-la.",
+          "Sua conta: e-mail e senha. A senha não fica guardada em texto legível, nem eu consigo vê-la.",
           "Seus livros: título, autor, descrição, idioma, capa e o texto de cada página. O arquivo original (PDF ou EPUB) não é armazenado.",
           "Seu progresso de leitura: a página em que você parou e quando leu pela última vez."
         ]
