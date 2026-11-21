@@ -8,6 +8,7 @@ import { DashboardPage } from '@/pages/DashboardPage'
 import { ImportBookPage } from '@/pages/ImportBookPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
+import { PrivacyPage } from '@/pages/PrivacyPage'
 import { ReaderPage } from '@/pages/ReaderPage'
 import { ResetPasswordPage } from '@/pages/ResetPasswordPage'
 
@@ -35,5 +36,7 @@ export const router = createBrowserRouter([
   // Outside both guards: the recovery link signs the user in temporarily, and the page
   // must stay put (not redirect to the library) until a new password is chosen.
   { path: paths.resetPassword, element: <ResetPasswordPage /> },
+  // Public, so it can be read before creating an account.
+  { path: paths.privacy, element: <PrivacyPage /> },
   { path: '*', element: <NotFoundPage /> },
 ])
