@@ -17,6 +17,11 @@
     "signOut": "Sair"
   },
   "auth": {
+    "artwork": {
+      "alt": "Nuvens de Júpiter fotografadas pela sonda Juno, da NASA",
+      "quote": "“Um livro é a prova de que os seres humanos são capazes de fazer mágica.”",
+      "credit": "Foto: NASA/JPL-Caltech/SwRI/MSSS · Gerald Eichstädt e Seán Doran"
+    },
     "signInTab": "Entrar",
     "signUpTab": "Criar conta",
     "signInAction": "Entrar",
