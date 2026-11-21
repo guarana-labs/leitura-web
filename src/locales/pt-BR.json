@@ -43,7 +43,9 @@
       "link": "Esqueceu a senha?",
       "action": "Enviar link de recuperação",
       "back": "Voltar para o login",
-      "unavailable": "A recuperação de senha ainda não está disponível."
+      "sent": "Se existir uma conta com {{email}}, enviamos um link para você criar uma nova senha.",
+      "sentHint": "O link vale por pouco tempo. Se não encontrar o e-mail, confira a caixa de spam.",
+      "tryAgain": "Usar outro e-mail"
     },
     "signInAction": "Entrar",
     "signUpAction": "Criar conta",
