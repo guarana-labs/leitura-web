@@ -50,6 +50,11 @@
     "bookCount_one": "{{count}} livro",
     "bookCount_other": "{{count}} livros",
     "loadError": "Não foi possível carregar seus livros.",
+    "view": {
+      "label": "Modo de exibição",
+      "list": "Lista",
+      "grid": "Grade"
+    },
     "empty": {
       "title": "Sua biblioteca está vazia",
       "description": "Importe um livro em PDF. Apenas o texto é extraído e salvo — o arquivo PDF não é armazenado."

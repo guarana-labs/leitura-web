@@ -1,24 +1,37 @@
 import { CircleAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { BooksGrid, BooksGridSkeleton } from '@/components/books/BooksGrid'
 import { BooksTable } from '@/components/books/BooksTable'
 import { BooksTableSkeleton } from '@/components/books/BooksTableSkeleton'
 import { EmptyLibrary } from '@/components/books/EmptyLibrary'
+import { LibraryViewToggle } from '@/components/books/LibraryViewToggle'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
 import { useBooks } from '@/hooks/useBooks'
+import { useLibraryView } from '@/hooks/useLibraryView'
 
 export function DashboardPage() {
   const { t } = useTranslation()
   const { data: books, isPending, isError, refetch, isRefetching } = useBooks()
+  const { view, setView } = useLibraryView()
 
-  const description = books && books.length > 0 ? t('dashboard.bookCount', { count: books.length }) : undefined
+  const hasBooks = books !== undefined && books.length > 0
+  const description = hasBooks ? t('dashboard.bookCount', { count: books.length }) : undefined
 
   return (
     <>
-      <PageHeader title={t('dashboard.title')} description={description} />
+      <PageHeader
+        title={t('dashboard.title')}
+        description={description}
+        actions={hasBooks && <LibraryViewToggle value={view} onChange={setView} />}
+      />
 
       {isPending ? (
-        <BooksTableSkeleton />
+        view === 'grid' ? (
+          <BooksGridSkeleton />
+        ) : (
+          <BooksTableSkeleton />
+        )
       ) : isError ? (
         <div
           role="alert"
@@ -32,6 +45,8 @@ export function DashboardPage() {
         </div>
       ) : books.length === 0 ? (
         <EmptyLibrary />
+      ) : view === 'grid' ? (
+        <BooksGrid books={books} />
       ) : (
         <BooksTable books={books} />
       )}
