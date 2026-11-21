@@ -29,7 +29,8 @@ export const READER_FONTS = [
 
 export type ReaderFontId = (typeof READER_FONTS)[number]['id']
 
-export const DEFAULT_READER_FONT: ReaderFontId = 'sans'
+/** Literata was designed for long reading on screens. */
+export const DEFAULT_READER_FONT: ReaderFontId = 'serif'
 
 export function isReaderFontId(value: string | null): value is ReaderFontId {
   return READER_FONTS.some((font) => font.id === value)
