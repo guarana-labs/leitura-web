@@ -3,13 +3,17 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { paths } from '@/app/paths'
 import { PageIndexSheet } from '@/components/reader/PageIndexSheet'
+import { ReaderFontMenu } from '@/components/reader/ReaderFontMenu'
 import { Button } from '@/components/ui/button'
 import { useTheme } from '@/hooks/useTheme'
+import type { ReaderFontId } from '@/lib/readerFonts'
 
 interface ReaderTopBarProps {
   bookId: string
   bookTitle: string
   currentPage: number
+  font: ReaderFontId
+  onFontChange: (font: ReaderFontId) => void
   canDecreaseFont: boolean
   canIncreaseFont: boolean
   onDecreaseFont: () => void
@@ -21,6 +25,8 @@ export function ReaderTopBar({
   bookId,
   bookTitle,
   currentPage,
+  font,
+  onFontChange,
   canDecreaseFont,
   canIncreaseFont,
   onDecreaseFont,
@@ -51,9 +57,7 @@ export function ReaderTopBar({
           >
             <Minus aria-hidden />
           </Button>
-          <span className="w-6 text-center text-xs text-muted-foreground select-none" aria-hidden>
-            Aa
-          </span>
+          <ReaderFontMenu value={font} onChange={onFontChange} />
           <Button
             variant="ghost"
             size="icon"

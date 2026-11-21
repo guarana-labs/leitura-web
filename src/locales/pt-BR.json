@@ -182,6 +182,12 @@
     "backToBook": "Voltar para o livro",
     "decreaseFont": "Diminuir texto",
     "increaseFont": "Aumentar texto",
+    "fonts": {
+      "label": "Fonte",
+      "sansHint": "Sem serifa, limpa e moderna",
+      "serifHint": "Com serifa, feita para livros digitais",
+      "legibleHint": "Máxima legibilidade, letras bem distintas"
+    },
     "end": "Fim",
     "loadError": "Não foi possível carregar esta página."
   },

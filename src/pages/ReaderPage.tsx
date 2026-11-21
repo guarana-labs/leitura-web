@@ -12,6 +12,7 @@ import { useBook } from '@/hooks/useBooks'
 import { useKeyboardPaging } from '@/hooks/useKeyboardPaging'
 import { usePage, usePrefetchPages, useSaveProgress } from '@/hooks/useReader'
 import { useReaderSettings } from '@/hooks/useReaderSettings'
+import { readerFontFamily } from '@/lib/readerFonts'
 
 /**
  * Reads one page at a time: only the current page is loaded (plus its neighbours
@@ -87,6 +88,8 @@ export function ReaderPage() {
         bookId={book.id}
         bookTitle={book.title}
         currentPage={pageNumber}
+        font={settings.font}
+        onFontChange={settings.setFont}
         canDecreaseFont={settings.canDecrease}
         canIncreaseFont={settings.canIncrease}
         onDecreaseFont={settings.decreaseFontSize}
@@ -108,6 +111,7 @@ export function ReaderPage() {
           <ReaderPageView
             paragraphs={pageQuery.data.paragraphs}
             fontSize={settings.fontSize}
+            fontFamily={readerFontFamily(settings.font)}
             isLastPage={pageNumber === totalPages}
           />
         )}

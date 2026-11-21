@@ -4,15 +4,17 @@ import { Skeleton } from '@/components/ui/skeleton'
 interface ReaderPageViewProps {
   paragraphs: string[]
   fontSize: number
+  /** CSS font-family of the chosen reading font. */
+  fontFamily: string
   isLastPage: boolean
 }
 
 /** The text of one page, set for comfortable reading. */
-export function ReaderPageView({ paragraphs, fontSize, isLastPage }: ReaderPageViewProps) {
+export function ReaderPageView({ paragraphs, fontSize, fontFamily, isLastPage }: ReaderPageViewProps) {
   const { t } = useTranslation()
 
   return (
-    <article className="flex flex-col" style={{ fontSize: `${fontSize}px` }}>
+    <article className="flex flex-col" style={{ fontSize: `${fontSize}px`, fontFamily }}>
       <div className="flex flex-col gap-[1em] leading-[1.8] text-pretty">
         {paragraphs.map((paragraph, index) => (
           <p key={index}>{paragraph}</p>
