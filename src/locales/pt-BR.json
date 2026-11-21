@@ -171,7 +171,13 @@
       "loadError": "Não foi possível carregar o índice.",
       "reading": "Lendo",
       "words_one": "{{formatted}} palavra",
-      "words_other": "{{formatted}} palavras"
+      "words_other": "{{formatted}} palavras",
+      "pagination": "Paginação do índice",
+      "range": "Páginas {{from}}–{{to}} de {{total}}",
+      "first": "Primeiras páginas",
+      "previous": "Anteriores",
+      "next": "Próximas",
+      "last": "Últimas páginas"
     }
   },
   "reader": {

@@ -6,7 +6,7 @@ import { paths } from '@/app/paths'
 import { BookInfo } from '@/components/books/BookInfo'
 import { DeleteBookDialog } from '@/components/books/DeleteBookDialog'
 import { EditBookDialog } from '@/components/books/EditBookDialog'
-import { PageIndex } from '@/components/books/PageIndex'
+import { PaginatedPageIndex } from '@/components/books/PaginatedPageIndex'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useBook } from '@/hooks/useBooks'
@@ -65,7 +65,12 @@ export function BookDetailsPage() {
             ) : pagesQuery.isError ? (
               <ErrorState message={t('book.index.loadError')} onRetry={() => void pagesQuery.refetch()} />
             ) : (
-              <PageIndex bookId={book.id} pages={pagesQuery.data} currentPage={book.currentPage} />
+              <PaginatedPageIndex
+                key={book.id}
+                bookId={book.id}
+                pages={pagesQuery.data}
+                currentPage={book.currentPage}
+              />
             )}
           </section>
 
