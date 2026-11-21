@@ -17,6 +17,8 @@ type FormMessage = { kind: 'error' | 'info'; text: string }
 
 interface AuthFormProps {
   mode: AuthMode
+  /** Shows a "forgot password" link next to the password label when signing in. */
+  onForgotPassword?: () => void
 }
 
 /**
@@ -24,7 +26,7 @@ interface AuthFormProps {
  * On success the AuthProvider receives the new session and the route guard
  * redirects to the library, so nothing else needs to happen here.
  */
-export function AuthForm({ mode }: AuthFormProps) {
+export function AuthForm({ mode, onForgotPassword }: AuthFormProps) {
   const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -88,7 +90,18 @@ export function AuthForm({ mode }: AuthFormProps) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor={`${idPrefix}-password`}>{t('auth.password')}</Label>
+        <div className="flex items-center justify-between gap-2">
+          <Label htmlFor={`${idPrefix}-password`}>{t('auth.password')}</Label>
+          {!isSignUp && onForgotPassword && (
+            <button
+              type="button"
+              onClick={onForgotPassword}
+              className="text-xs text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+            >
+              {t('auth.forgot.link')}
+            </button>
+          )}
+        </div>
         <PasswordInput
           id={`${idPrefix}-password`}
           autoComplete={isSignUp ? 'new-password' : 'current-password'}

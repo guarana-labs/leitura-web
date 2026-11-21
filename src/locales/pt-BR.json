@@ -29,11 +29,21 @@
       "signUp": {
         "title": "Crie sua conta",
         "subtitle": "Monte sua biblioteca e leia uma página de cada vez."
+      },
+      "forgot": {
+        "title": "Recuperar senha",
+        "subtitle": "Informe seu e-mail e enviaremos um link para você criar uma nova senha."
       }
     },
     "switch": {
       "noAccount": "Ainda não tem uma conta?",
       "hasAccount": "Já tem uma conta?"
+    },
+    "forgot": {
+      "link": "Esqueceu a senha?",
+      "action": "Enviar link de recuperação",
+      "back": "Voltar para o login",
+      "unavailable": "A recuperação de senha ainda não está disponível."
     },
     "signInAction": "Entrar",
     "signUpAction": "Criar conta",

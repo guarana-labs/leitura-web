@@ -1,13 +1,14 @@
 import { useState } from 'react'
-import { BookOpen, Moon, Sun } from 'lucide-react'
+import { ArrowLeft, BookOpen, Moon, Sun } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { AuthForm } from '@/components/auth/AuthForm'
+import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm'
 import { LoginArtwork, LoginFooter } from '@/components/auth/LoginArtwork'
 import { Button } from '@/components/ui/button'
 import { useTheme } from '@/hooks/useTheme'
 import { getLoginImage } from '@/lib/loginImages'
 
-type AuthView = 'signIn' | 'signUp'
+type AuthView = 'signIn' | 'signUp' | 'forgot'
 
 /**
  * Desktop: photo (60%) on the left, an editorial form column (40%) on the right,
@@ -49,24 +50,41 @@ export function LoginPage() {
         <main className="flex flex-1 items-center">
           {/* A card on phones (over the photo); plain column on desktop. */}
           <div className="mx-auto w-full max-w-sm rounded-xl border bg-card p-6 text-card-foreground shadow-lg lg:mx-0 lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
+            {view === 'forgot' && (
+              <button
+                type="button"
+                onClick={() => setView('signIn')}
+                className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <ArrowLeft className="size-4" aria-hidden />
+                {t('auth.forgot.back')}
+              </button>
+            )}
+
             <h1 className="text-2xl font-semibold tracking-tight lg:text-3xl">{t(`auth.views.${view}.title`)}</h1>
             <p className="mt-2 text-sm text-muted-foreground">{t(`auth.views.${view}.subtitle`)}</p>
 
             <div className="mt-8">
-              {/* Keyed so switching between sign in and sign up starts with a clean form. */}
-              <AuthForm key={view} mode={view} />
+              {view === 'forgot' ? (
+                <ForgotPasswordForm />
+              ) : (
+                // Keyed so switching between sign in and sign up starts with a clean form.
+                <AuthForm key={view} mode={view} onForgotPassword={() => setView('forgot')} />
+              )}
             </div>
 
-            <p className="mt-6 text-center text-sm text-muted-foreground lg:text-left">
-              {view === 'signIn' ? t('auth.switch.noAccount') : t('auth.switch.hasAccount')}{' '}
-              <button
-                type="button"
-                onClick={() => setView(view === 'signIn' ? 'signUp' : 'signIn')}
-                className="font-medium text-foreground underline-offset-4 hover:underline"
-              >
-                {view === 'signIn' ? t('auth.signUpAction') : t('auth.signInAction')}
-              </button>
-            </p>
+            {view !== 'forgot' && (
+              <p className="mt-6 text-center text-sm text-muted-foreground lg:text-left">
+                {view === 'signIn' ? t('auth.switch.noAccount') : t('auth.switch.hasAccount')}{' '}
+                <button
+                  type="button"
+                  onClick={() => setView(view === 'signIn' ? 'signUp' : 'signIn')}
+                  className="font-medium text-foreground underline-offset-4 hover:underline"
+                >
+                  {view === 'signIn' ? t('auth.signUpAction') : t('auth.signInAction')}
+                </button>
+              </p>
+            )}
           </div>
         </main>
 
