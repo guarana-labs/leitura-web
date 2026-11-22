@@ -6,16 +6,33 @@
  * table per base word and a declension table per noun:
  *   verbs.json: { fangen: { PRÄ: { S: { 3: "fängt" … } … }, PRT: …, PA2: ["gefangen"] … } }
  *   words.json: { Haus: { DAT: { PLU: "Häusern" … }, G: "N" } }
+ *
+ * Separable verbs write a form as a [verb part, particle] pair:
+ *   anfangen: { INF: "anfangen", PRÄ: { S: { 3: ["fängt", "an"] } } … }
  */
 
-/** Every string inside a nested conjugation/declension table (the gender field "G" is skipped). */
-export function collectForms(table: unknown, into: string[] = []): string[] {
+/**
+ * Every form inside a nested conjugation/declension table (the gender field "G" is skipped).
+ * A separable pair ["fängt", "an"] gives "fängt" (main clause: "er fängt an") and the
+ * joined "anfängt" (subordinate clause: "weil er anfängt"), never the particle "an" alone.
+ */
+export function collectForms(table: unknown, into: string[] = [], infinitive = ''): string[] {
   if (typeof table === 'string') {
     if (table) into.push(table)
   } else if (Array.isArray(table)) {
-    for (const item of table) collectForms(item, into)
+    const [verbPart, particle] = table
+    const isSeparablePair =
+      table.length === 2 &&
+      typeof verbPart === 'string' &&
+      typeof particle === 'string' &&
+      particle !== '' &&
+      infinitive.startsWith(particle)
+    if (isSeparablePair) into.push(verbPart, particle + verbPart)
+    else for (const item of table) collectForms(item, into, infinitive)
   } else if (table && typeof table === 'object') {
-    for (const [field, value] of Object.entries(table)) if (field !== 'G') collectForms(value, into)
+    const record = table as Record<string, unknown>
+    const ownInfinitive = typeof record.INF === 'string' ? record.INF : infinitive
+    for (const [field, value] of Object.entries(record)) if (field !== 'G') collectForms(value, into, ownInfinitive)
   }
   return into
 }
