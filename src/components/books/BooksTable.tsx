@@ -6,6 +6,7 @@ import { BookCover } from '@/components/books/BookCover'
 import { BookProgress } from '@/components/books/BookProgress'
 import { BookRowActions } from '@/components/books/BookRowActions'
 import { DeleteBookDialog } from '@/components/books/DeleteBookDialog'
+import { EditBookDialog } from '@/components/books/EditBookDialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { BookSummary } from '@/types/book'
 import { formatDate, formatNumber, formatRelativeTime } from '@/utils/format'
@@ -19,6 +20,14 @@ export function BooksTable({ books }: BooksTableProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [bookToDelete, setBookToDelete] = useState<BookSummary | null>(null)
+  // The book stays set after closing, so the dialog keeps its content during the close animation.
+  const [bookToEdit, setBookToEdit] = useState<BookSummary | null>(null)
+  const [isEditOpen, setIsEditOpen] = useState(false)
+
+  function openEdit(book: BookSummary) {
+    setBookToEdit(book)
+    setIsEditOpen(true)
+  }
 
   return (
     <>
@@ -73,7 +82,7 @@ export function BooksTable({ books }: BooksTableProps) {
                   {formatDate(book.createdAt)}
                 </TableCell>
                 <TableCell className="pr-2">
-                  <BookRowActions book={book} onDelete={setBookToDelete} />
+                  <BookRowActions book={book} onEdit={openEdit} onDelete={setBookToDelete} />
                 </TableCell>
               </TableRow>
             ))}
@@ -81,6 +90,7 @@ export function BooksTable({ books }: BooksTableProps) {
         </Table>
       </div>
 
+      {bookToEdit && <EditBookDialog book={bookToEdit} open={isEditOpen} onOpenChange={setIsEditOpen} />}
       <DeleteBookDialog book={bookToDelete} onClose={() => setBookToDelete(null)} />
     </>
   )

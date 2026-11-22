@@ -175,7 +175,7 @@
       "menu": "Ações para {{title}}",
       "start": "Começar a ler",
       "continue": "Continuar lendo",
-      "details": "Ver detalhes",
+      "edit": "Editar",
       "delete": "Excluir"
     },
     "delete": {
