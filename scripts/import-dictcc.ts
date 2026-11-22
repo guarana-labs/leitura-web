@@ -6,12 +6,19 @@
  *
  * Runs on your computer and writes straight to the database in DATABASE_URL.
  * Only single-word headwords are stored (a click is always on one word), grouped
- * by lookup key: one row per word with all its senses.
+ * by lookup key: one row per word with all its senses, the most common English first.
  * Run `bun run dictionary:db` first to create the table.
  */
 import { readFileSync } from 'node:fs'
 import { SQL } from 'bun'
-import { DICTCC_DE_EN, dictccKey, parseDictccLine, type DictccEntry } from '../src/lib/dictionary/dictcc'
+import {
+  DICTCC_DE_EN,
+  dictccKey,
+  englishWords,
+  parseDictccLine,
+  sortByCommonness,
+  type DictccEntry,
+} from '../src/lib/dictionary/dictcc'
 
 const ROWS_PER_STATEMENT = 2000
 
@@ -28,6 +35,8 @@ if (!databaseUrl) {
 
 const started = performance.now()
 const groups = new Map<string, DictccEntry[]>()
+// How many senses (phrases included) use each English word: a rough "how common" measure.
+const englishCounts = new Map<string, number>()
 let lines = 0
 let skippedPhrases = 0
 
@@ -35,6 +44,7 @@ for (const line of readFileSync(path, 'utf8').split(/\r?\n/)) {
   const entry = parseDictccLine(line)
   if (!entry) continue
   lines++
+  for (const word of new Set(englishWords(entry[1]))) englishCounts.set(word, (englishCounts.get(word) ?? 0) + 1)
   const key = dictccKey(entry[0])
   if (!key) continue
   if (key.includes(' ')) {
@@ -47,7 +57,7 @@ for (const line of readFileSync(path, 'utf8').split(/\r?\n/)) {
 }
 console.log(`read ${lines} entries: ${groups.size} words kept, ${skippedPhrases} multi-word phrases skipped`)
 
-const rows = [...groups.entries()]
+const rows = [...groups.entries()].map(([key, entries]) => [key, sortByCommonness(entries, englishCounts)] as const)
 const sql = new SQL(databaseUrl)
 try {
   // All or nothing: the old import stays until the new one is complete.

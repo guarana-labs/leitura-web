@@ -68,25 +68,84 @@ export function parseDictccLine(line: string): DictccEntry | null {
 
 /**
  * Usage notes that mark a sense as less common: slang, old, regional, rare,
- * humorous, titles of works… Grammar marks like [Akk.] or [Dat.] are not usage notes.
+ * humorous, titles of works… They may open a longer note: "[obs. or Scot.]", "[esp. Br.]".
+ * The marker must end with "." or "]", so "[Am Telefon]" is not "[Am.]".
  */
 const MARKED =
-  /\[(?:coll|sl|slang|archaic|obs|dated|dial|regional|rare|poet|hum|pej|vulg|ugs|veraltet|selten|südd|österr|schweiz|Jugendsprache|derb|hist|lit|F|Br|Am|Aus|Scot|Irish)\.?\]/i
+  /\[(?:esp\. )?(?:coll|sl|slang|archaic|obs|dated|dial|regional|rare|poet|hum|pej|vulg|ugs|veraltet|veraltend|selten|südd|österr|schweiz|Jugendsprache|derb|hist|lit|F|Br|Am|Aus|Scot|Irish|N\. Engl)(?:\.|\])/i
 
-function score([german, english, type, tags]: DictccEntry, clicked: string): number {
-  const clean = cleanHeadword(german)
-  let value = 0
-  // Exact spelling first: in German "Essen" (food) and "essen" (to eat) are different words.
-  if (clean === clicked) value += 8
-  else if (clean.toLocaleLowerCase('de') === clicked.toLocaleLowerCase('de')) value += 4
-  if (MARKED.test(german) || MARKED.test(english)) value -= 3
-  if (tags) value -= 1 // specialized subject (biology, law…)
-  if (!type) value -= 1 // untyped entries are often phrases or titles
-  if (/\bsich\b/.test(german)) value -= 1 // reflexive variant ("sich etw. sagen")
-  return value * 1000 - english.length
+/** The English words alone: "to say sth. (to sb.)" → "to say". */
+function plainEnglish(english: string): string {
+  return english
+    .replace(/\[[^\]]*\]|\([^)]*\)|<[^>]*>|\{[^}]*\}/g, ' ')
+    .replace(/\b(?:sb|sth)\.(?=[\s/]|$)|\bone's\b/g, ' ')
+    .replace(/(?:^|\s)\/+(?=\s|$)/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
-/** Most useful senses first for the clicked word (as written on the page). */
+/** Words that say nothing about how common a translation is. */
+const FILLER_WORDS = new Set(['to', 'be', 'a', 'an', 'the', 'of', 'oneself'])
+
+/** The meaningful English words of a sense: "to be aware of" → ["aware"]. */
+export function englishWords(english: string): string[] {
+  return (plainEnglish(english).toLowerCase().match(/[a-z']+/g) ?? []).filter((word) => !FILLER_WORDS.has(word))
+}
+
+/**
+ * Orders a word's senses from the plainest, most common English to the rarest.
+ * Done once at import; the ranking below keeps this order among equal scores.
+ *   1. Fewer words first: "to catch" before "to round up".
+ *   2. More common words first, using how often each English word appears in the
+ *      whole dict.cc file (`counts`): "to catch" (478) before "to trap" (304) before
+ *      "to cop" (85). A sense is as common as its rarest word.
+ *   3. Shorter text first.
+ */
+export function sortByCommonness(entries: DictccEntry[], counts: Map<string, number>): DictccEntry[] {
+  return entries
+    .map((entry) => {
+      const words = englishWords(entry[1])
+      const common = words.length === 0 ? 0 : Math.min(...words.map((word) => counts.get(word) ?? 0))
+      return { entry, words: words.length || Infinity, common, length: plainEnglish(entry[1]).length }
+    })
+    .sort((a, b) => a.words - b.words || b.common - a.common || a.length - b.length)
+    .map(({ entry }) => entry)
+}
+
+/** Grammar notes ("[Akk.]", "[+Dat.]") say how a word is used, not which meaning it is. */
+const GRAMMAR_NOTE = /^\[\+?\s*(?:Akk|Dat|Gen|Nom)\.?\]$/i
+
+/** A note (not grammar, not usage) that narrows the sense: "sitzen [Kleidung]", "caregiver [doctor]". */
+function hasNote(text: string): boolean {
+  return (text.match(/\[[^\]]*\]/g) ?? []).some((note) => !GRAMMAR_NOTE.test(note) && !MARKED.test(note))
+}
+
+/**
+ * Rules that move a sense up or down; equal scores keep the stored order
+ * (plainest, most common English first). Subject tags like "[fin.]" are not
+ * used: main senses often have one too ("bank [fin.]", "eye [anat.]").
+ */
+function score([german, english, type]: DictccEntry, clicked: string): number {
+  const clean = cleanHeadword(german)
+  let value = 0
+  // Spelling as clicked first: "Essen" (food) and "essen" (to eat) are different words.
+  // A small bonus, since a capital letter may just start the sentence ("Die …").
+  if (clean === clicked) value += 3
+  else if (clean.toLocaleLowerCase('de') === clicked.toLocaleLowerCase('de')) value += 2
+  if (MARKED.test(german) || MARKED.test(english)) value -= 3
+  if (hasNote(german)) value -= 1
+  if (hasNote(english)) value -= 1
+  if (!type) value -= 1 // untyped entries are often phrases or titles
+  if (/\bsich\b/.test(german)) value -= 1 // reflexive variant ("sich etw. sagen")
+  // A capitalized English word identical to the German is a name: "Auge" (Greek myth).
+  if (english === clean && /^\p{Lu}/u.test(english)) value -= 1
+  return value
+}
+
+/**
+ * Most useful senses first for the clicked word (as written on the page).
+ * The sort is stable, so equal scores keep the stored order: most common English first.
+ */
 export function rankDictccEntries(entries: DictccEntry[], clicked: string): DictccEntry[] {
   return [...entries]
     .filter(([, english]) => english.replace(/\[[^\]]*\]/g, '').trim() !== '')
