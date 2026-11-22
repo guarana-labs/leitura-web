@@ -6,6 +6,7 @@ import { BookCover } from '@/components/books/BookCover'
 import { BookProgress } from '@/components/books/BookProgress'
 import { BookRowActions } from '@/components/books/BookRowActions'
 import { DeleteBookDialog } from '@/components/books/DeleteBookDialog'
+import { EditBookDialog } from '@/components/books/EditBookDialog'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { BookSummary } from '@/types/book'
 
@@ -19,6 +20,14 @@ interface BooksGridProps {
 export function BooksGrid({ books }: BooksGridProps) {
   const { t } = useTranslation()
   const [bookToDelete, setBookToDelete] = useState<BookSummary | null>(null)
+  // The book stays set after closing, so the dialog keeps its content during the close animation.
+  const [bookToEdit, setBookToEdit] = useState<BookSummary | null>(null)
+  const [isEditOpen, setIsEditOpen] = useState(false)
+
+  function openEdit(book: BookSummary) {
+    setBookToEdit(book)
+    setIsEditOpen(true)
+  }
 
   return (
     <>
@@ -44,7 +53,7 @@ export function BooksGrid({ books }: BooksGridProps) {
                 </p>
               </div>
               <div className="-mt-1.5 -mr-2">
-                <BookRowActions book={book} onDelete={setBookToDelete} />
+                <BookRowActions book={book} onEdit={openEdit} onDelete={setBookToDelete} />
               </div>
             </div>
 
@@ -56,6 +65,7 @@ export function BooksGrid({ books }: BooksGridProps) {
         ))}
       </ul>
 
+      {bookToEdit && <EditBookDialog book={bookToEdit} open={isEditOpen} onOpenChange={setIsEditOpen} />}
       <DeleteBookDialog book={bookToDelete} onClose={() => setBookToDelete(null)} />
     </>
   )
