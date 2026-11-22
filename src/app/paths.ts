@@ -5,6 +5,7 @@ export const paths = {
   privacy: '/privacy',
   dashboard: '/books',
   importBook: '/books/import',
+  settings: '/settings',
   book: (bookId: string) => `/books/${bookId}`,
   reader: (bookId: string, pageNumber: number) => `/books/${bookId}/read/${pageNumber}`,
 } as const

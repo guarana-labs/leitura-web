@@ -85,12 +85,8 @@ export function WordPanel({ word, profile, userWord, onSave, onSaveMeaning, isSa
         ))}
       </div>
 
-      {/* Dictionary: dict.cc is German→English, so it's only offered for German books. */}
-      {profile.code === 'de' ? (
-        <DictionarySections word={word} profile={profile} />
-      ) : (
-        <p className="border-t pt-3 text-xs text-muted-foreground">{t('vocabulary.dictcc.germanOnly')}</p>
-      )}
+      {/* The dictionary chosen for the book's language (Settings) */}
+      <DictionarySections word={word} profile={profile} />
 
       {/* The user's own meaning */}
       <section className="flex flex-col gap-2 border-t pt-3">

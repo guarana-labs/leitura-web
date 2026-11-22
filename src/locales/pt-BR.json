@@ -14,7 +14,39 @@
     "importBook": "Importar livro",
     "toggleTheme": "Alternar tema",
     "accountMenu": "Menu da conta",
+    "settings": "Configurações",
     "signOut": "Sair"
+  },
+  "settings": {
+    "title": "Configurações",
+    "subtitle": "Preferências da sua conta.",
+    "dictionaries": {
+      "title": "Dicionários",
+      "description": "O dicionário que aparece quando você clica numa palavra. Vale para todos os livros do idioma.",
+      "label": "Livros em {{language}}",
+      "saved": "Dicionário salvo.",
+      "saveFailed": "Não foi possível salvar o dicionário."
+    }
+  },
+  "dictionaries": {
+    "languages": {
+      "de": "alemão",
+      "en": "inglês",
+      "pt-BR": "português"
+    },
+    "to": "para",
+    "dictcc-de-en": {
+      "name": "dict.cc",
+      "description": "Mais de um milhão de traduções feitas pela comunidade. Traduções curtas e muitas expressões."
+    },
+    "wikdict-de-pt": {
+      "name": "WikDict",
+      "description": "Do Wiktionary. Cada sentido vem com uma explicação em alemão."
+    },
+    "wikdict-en-pt": {
+      "name": "WikDict",
+      "description": "Do Wiktionary. Cada sentido vem com uma explicação em inglês."
+    }
   },
   "auth": {
     "defaultQuote": {
@@ -167,12 +199,26 @@
     },
     "dictionaryError": "Não foi possível consultar o dicionário.",
     "noDefinition": "Nenhuma tradução encontrada.",
-    "dictcc": {
-      "title": "dict.cc (alemão → inglês)",
+    "noDictionary": "Ainda não há dicionário para livros neste idioma.",
+    "dictionary": {
       "baseForm": "Forma base: {{word}}",
       "showMore": "Mostrar todas ({{count}})",
-      "showLess": "Mostrar menos",
-      "germanOnly": "O dicionário (dict.cc) está disponível só para livros em alemão."
+      "showLess": "Mostrar menos"
+    },
+    "partsOfSpeech": {
+      "noun": "substantivo",
+      "properNoun": "nome próprio",
+      "verb": "verbo",
+      "adjective": "adjetivo",
+      "adverb": "advérbio",
+      "pronoun": "pronome",
+      "article": "artigo",
+      "preposition": "preposição",
+      "conjunction": "conjunção",
+      "interjection": "interjeição",
+      "numeral": "numeral",
+      "particle": "partícula",
+      "phrase": "expressão"
     },
     "myMeaning": "Seu significado",
     "myMeaningPlaceholder": "Escreva com suas palavras…",

@@ -1,19 +1,18 @@
-import { DICTCC_DE_EN, type DictccEntry } from '@/lib/dictionary/dictcc'
 import { supabase } from '@/lib/supabase'
 
 /**
- * [dictionary branch only] dict.cc German→English, imported on the server by
- * `bun run dictionary:import`. One row per lookup key with all its senses.
- * Returns an empty list when the word isn't in the dictionary.
+ * [dictionary branch only] Dictionaries imported on the server (see scripts/import-*.ts).
+ * One row per dictionary and lookup key, with all its senses in that dictionary's
+ * format (see src/lib/dictionary/). Returns an empty list when the word isn't there.
  */
-export async function lookupDictcc(key: string): Promise<DictccEntry[]> {
+export async function lookupDictionary<Entry>(dictionary: string, key: string): Promise<Entry[]> {
   const { data, error } = await supabase
     .from('dictionary_entries')
     .select('entries')
-    .eq('dictionary', DICTCC_DE_EN)
+    .eq('dictionary', dictionary)
     .eq('key', key)
     .maybeSingle()
 
   if (error) throw error
-  return (data?.entries as DictccEntry[] | undefined) ?? []
+  return (data?.entries as Entry[] | undefined) ?? []
 }

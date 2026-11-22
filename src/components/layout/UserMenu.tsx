@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { LogOut } from 'lucide-react'
+import { LogOut, Settings } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
+import { paths } from '@/app/paths'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -48,6 +50,12 @@ export function UserMenu() {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="truncate font-normal text-muted-foreground">{email}</DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link to={paths.settings}>
+            <Settings aria-hidden />
+            {t('nav.settings')}
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem onSelect={handleSignOut} disabled={isSigningOut}>
           <LogOut aria-hidden />
           {t('nav.signOut')}
