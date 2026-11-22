@@ -29,6 +29,8 @@ interface ReaderPageViewProps {
   userWords: Map<string, UserWord> | undefined
   selectedKey: string | null
   onWordClick: (word: ClickedWord) => void
+  /** The word under the mouse, or null when the mouse leaves the words. */
+  onWordHover?: (word: ClickedWord | null) => void
   fontSize: number
   /** CSS font-family of the chosen reading font. */
   fontFamily: string
@@ -42,18 +44,24 @@ export function ReaderPageView({
   userWords,
   selectedKey,
   onWordClick,
+  onWordHover,
   fontSize,
   fontFamily,
   isLastPage,
 }: ReaderPageViewProps) {
   const { t } = useTranslation()
 
-  // One click handler for the whole page instead of one per word.
-  function handleClick(event: MouseEvent<HTMLElement>) {
+  function wordAt(event: MouseEvent<HTMLElement>): ClickedWord | null {
     const element = (event.target as HTMLElement).closest<HTMLElement>('[data-word]')
-    if (!element) return
+    if (!element) return null
     const text = element.dataset.word ?? ''
-    onWordClick({ text, key: normalize(text), element })
+    return { text, key: normalize(text), element }
+  }
+
+  // One handler for the whole page instead of one per word.
+  function handleClick(event: MouseEvent<HTMLElement>) {
+    const word = wordAt(event)
+    if (word) onWordClick(word)
   }
 
   return (
@@ -64,6 +72,8 @@ export function ReaderPageView({
       className="mx-auto flex w-full max-w-[31em] flex-col"
       style={{ fontSize: `${fontSize}px`, fontFamily }}
       onClick={handleClick}
+      onMouseOver={(event) => onWordHover?.(wordAt(event))}
+      onMouseLeave={() => onWordHover?.(null)}
     >
       <div className="flex flex-col gap-[1em] leading-[1.65] text-pretty">
         {paragraphs.map((tokens, index) => (
@@ -99,7 +109,8 @@ const Paragraph = memo(function Paragraph({ tokens, normalize, userWords, select
       {tokens.map((token, index) => {
         if (!token.isWord) return token.text
         const key = normalize(token.text)
-        const status = userWords ? (userWords.get(key)?.status ?? 'new') : null
+        const userWord = userWords?.get(key)
+        const status = userWords ? (userWord?.status ?? 'new') : null
         return (
           <span
             key={index}
@@ -107,6 +118,8 @@ const Paragraph = memo(function Paragraph({ tokens, normalize, userWords, select
             className={cn(
               'cursor-pointer rounded-[3px] transition-colors hover:bg-muted',
               status && STATUS_CLASSES[status],
+              // A dotted underline marks words with a saved meaning (shown on hover).
+              userWord?.meaning && 'underline decoration-muted-foreground/60 decoration-dotted underline-offset-4',
               key === selectedKey && 'ring-2 ring-ring/70',
             )}
           >

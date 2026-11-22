@@ -1,4 +1,5 @@
-import { useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import { MeaningHint } from '@/components/reader/MeaningHint'
 import { ReaderPageView, type ClickedWord } from '@/components/reader/ReaderPageView'
 import { WordPanel } from '@/components/reader/WordPanel'
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover'
@@ -46,6 +47,13 @@ export function VocabularyText({ language, paragraphs, fontSize, fontFamily, isL
     setSelected(word)
   }
 
+  // Hovering a word with a saved meaning shows that meaning above it (whatever its status).
+  const [hovered, setHovered] = useState<ClickedWord | null>(null)
+  const hoveredMeaning = hovered ? userWords.data?.get(hovered.key)?.meaning : null
+  // Not needed for the word whose box is open: the box already shows the meaning.
+  const showHint = hovered !== null && !!hoveredMeaning && hovered.key !== selected?.key
+  const dismissHint = useCallback(() => setHovered(null), [])
+
   return (
     <Popover open={selected !== null} onOpenChange={(open) => !open && setSelected(null)}>
       <PopoverAnchor virtualRef={anchorRef} />
@@ -55,9 +63,15 @@ export function VocabularyText({ language, paragraphs, fontSize, fontFamily, isL
         userWords={userWords.data}
         selectedKey={selected?.key ?? null}
         onWordClick={handleWordClick}
+        onWordHover={setHovered}
         fontSize={fontSize}
         fontFamily={fontFamily}
         isLastPage={isLastPage}
+      />
+      <MeaningHint
+        element={showHint ? hovered.element : null}
+        meaning={hoveredMeaning ?? ''}
+        onDismiss={dismissHint}
       />
       <PopoverContent
         className="max-h-[min(32rem,70svh)] w-80 overflow-y-auto"
