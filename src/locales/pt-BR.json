@@ -169,6 +169,7 @@
     "noDefinition": "Nenhuma tradução encontrada.",
     "dictcc": {
       "title": "dict.cc (alemão → inglês)",
+      "baseForm": "Forma base: {{word}}",
       "showMore": "Mostrar todas ({{count}})",
       "showLess": "Mostrar menos",
       "germanOnly": "O dicionário (dict.cc) está disponível só para livros em alemão."

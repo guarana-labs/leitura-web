@@ -13,10 +13,14 @@ interface DictccSectionProps {
   word: string
   /** The lookup key (normalized word). */
   wordKey: string
+  /** Heading; defaults to "dict.cc (alemão → inglês)". */
+  title?: string
+  /** Render nothing (instead of "no translation") when dict.cc has no entry. */
+  hideWhenEmpty?: boolean
 }
 
-/** [dictionary branch only] dict.cc translations for the clicked word, most useful first. */
-export function DictccSection({ word, wordKey }: DictccSectionProps) {
+/** [dictionary branch only] dict.cc translations for a word, most useful first. */
+export function DictccSection({ word, wordKey, title, hideWhenEmpty = false }: DictccSectionProps) {
   const { t } = useTranslation()
   const dictcc = useDictcc(wordKey, true)
   const [showAll, setShowAll] = useState(false)
@@ -24,9 +28,11 @@ export function DictccSection({ word, wordKey }: DictccSectionProps) {
   const ranked = useMemo(() => rankDictccEntries(dictcc.data ?? [], word), [dictcc.data, word])
   const visible = showAll ? ranked : ranked.slice(0, VISIBLE_SENSES)
 
+  if (hideWhenEmpty && dictcc.isSuccess && ranked.length === 0) return null
+
   return (
     <section className="flex flex-col gap-2 border-t pt-3">
-      <h3 className="text-xs font-medium text-muted-foreground">{t('vocabulary.dictcc.title')}</h3>
+      <h3 className="text-xs font-medium text-muted-foreground">{title ?? t('vocabulary.dictcc.title')}</h3>
 
       {dictcc.isPending ? (
         <div className="flex flex-col gap-1.5" aria-hidden>

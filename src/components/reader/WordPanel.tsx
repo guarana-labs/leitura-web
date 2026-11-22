@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { LoaderCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { DictccSection } from '@/components/reader/DictccSection'
+import { DictionarySections } from '@/components/reader/DictionarySections'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import type { LanguageProfile } from '@/lib/language'
@@ -87,7 +87,7 @@ export function WordPanel({ word, profile, userWord, onSave, onSaveMeaning, isSa
 
       {/* Dictionary: dict.cc is German→English, so it's only offered for German books. */}
       {profile.code === 'de' ? (
-        <DictccSection word={word} wordKey={profile.normalize(word)} />
+        <DictionarySections word={word} profile={profile} />
       ) : (
         <p className="border-t pt-3 text-xs text-muted-foreground">{t('vocabulary.dictcc.germanOnly')}</p>
       )}

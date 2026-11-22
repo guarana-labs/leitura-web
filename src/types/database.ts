@@ -138,6 +138,17 @@ export type Database = {
         Update: never
         Relationships: []
       }
+      /** [dictionary branch only] Inflected form → base word(s) (see supabase/dictionary/). */
+      word_forms: {
+        Row: {
+          language: string
+          form: string
+          bases: string[]
+        }
+        Insert: never
+        Update: never
+        Relationships: []
+      }
     }
     Views: { [_ in never]: never }
     Functions: {

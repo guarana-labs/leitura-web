@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@/hooks/useAuth'
 import type { DictccEntry } from '@/lib/dictionary/dictcc'
 import { lookupDictcc } from '@/services/dictionaryService'
+import { lookupBaseWords } from '@/services/wordFormService'
 import { getUserWords, saveUserWord } from '@/services/wordService'
 import type { UserWord, WordStatus } from '@/types/vocabulary'
 
@@ -49,6 +50,17 @@ export function useSaveUserWord(language: string) {
       // Put the previous colors back if saving failed.
       for (const [key, data] of context?.previous ?? []) queryClient.setQueryData(key, data)
     },
+  })
+}
+
+/** Base word(s) of an inflected form ("fängt" → fangen); cached for the session. */
+export function useBaseWords(language: string, key: string) {
+  return useQuery<string[]>({
+    queryKey: ['wordForms', language, key],
+    queryFn: () => lookupBaseWords(language, key),
+    enabled: key !== '',
+    staleTime: Infinity,
+    retry: 1,
   })
 }
 
