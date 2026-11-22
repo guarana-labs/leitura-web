@@ -157,6 +157,18 @@
   "languages": {
     "other": "Outros"
   },
+  "vocabulary": {
+    "status": "Status da palavra",
+    "statuses": {
+      "new": "Nova",
+      "familiar": "Familiar",
+      "learned": "Aprendida",
+      "ignored": "Ignorada"
+    },
+    "myMeaning": "Seu significado",
+    "myMeaningPlaceholder": "Escreva com suas palavras…",
+    "saveMeaning": "Salvar significado"
+  },
   "books": {
     "unknownAuthor": "Autor desconhecido",
     "columns": {

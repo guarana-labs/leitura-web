@@ -5,8 +5,9 @@ import { Link, Navigate, useNavigate, useParams } from 'react-router'
 import { paths } from '@/app/paths'
 import { FullPageSpinner } from '@/components/layout/FullPageSpinner'
 import { ReaderControls } from '@/components/reader/ReaderControls'
-import { ReaderPageSkeleton, ReaderPageView } from '@/components/reader/ReaderPageView'
+import { ReaderPageSkeleton } from '@/components/reader/ReaderPageView'
 import { ReaderTopBar } from '@/components/reader/ReaderTopBar'
+import { VocabularyText } from '@/components/reader/VocabularyText'
 import { Button } from '@/components/ui/button'
 import { useBook } from '@/hooks/useBooks'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
@@ -115,7 +116,10 @@ export function ReaderPage() {
             </Button>
           </div>
         ) : (
-          <ReaderPageView
+          <VocabularyText
+            // Each page starts with no word selected.
+            key={pageNumber}
+            language={book.language}
             paragraphs={pageQuery.data.paragraphs}
             fontSize={settings.fontSize}
             fontFamily={readerFontFamily(settings.font)}

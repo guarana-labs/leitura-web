@@ -102,6 +102,31 @@ export type Database = {
           },
         ]
       }
+      user_words: {
+        Row: {
+          user_id: string
+          language: string
+          word: string
+          status: 'new' | 'familiar' | 'learned' | 'ignored'
+          meaning: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id?: string
+          language: string
+          word: string
+          status?: 'new' | 'familiar' | 'learned' | 'ignored'
+          meaning?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          status?: 'new' | 'familiar' | 'learned' | 'ignored'
+          meaning?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: { [_ in never]: never }
     Functions: {
