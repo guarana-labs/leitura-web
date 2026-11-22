@@ -11,6 +11,7 @@ import { NotFoundPage } from '@/pages/NotFoundPage'
 import { PrivacyPage } from '@/pages/PrivacyPage'
 import { ReaderPage } from '@/pages/ReaderPage'
 import { ResetPasswordPage } from '@/pages/ResetPasswordPage'
+import { SettingsPage } from '@/pages/SettingsPage'
 
 export const router = createBrowserRouter([
   {
@@ -27,6 +28,7 @@ export const router = createBrowserRouter([
           { path: paths.dashboard, element: <DashboardPage /> },
           { path: paths.importBook, element: <ImportBookPage /> },
           { path: '/books/:bookId', element: <BookDetailsPage /> },
+          { path: paths.settings, element: <SettingsPage /> },
         ],
       },
       // The reader has its own minimal header, so it sits outside AppLayout.

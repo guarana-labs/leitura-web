@@ -127,6 +127,25 @@ export type Database = {
         }
         Relationships: []
       }
+      /** [dictionary branch only] Dictionary picked per book language (see supabase/dictionary/). */
+      user_dictionaries: {
+        Row: {
+          user_id: string
+          language: string
+          dictionary: string
+          updated_at: string
+        }
+        Insert: {
+          user_id?: string
+          language: string
+          dictionary: string
+          updated_at?: string
+        }
+        Update: {
+          dictionary?: string
+        }
+        Relationships: []
+      }
       /** [dictionary branch only] Imported dictionary data (see supabase/dictionary/). */
       dictionary_entries: {
         Row: {

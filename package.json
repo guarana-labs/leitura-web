@@ -11,6 +11,8 @@
     "dictionary:db": "bun scripts/dictionary-db.ts",
     "dictionary:import": "bun scripts/import-dictcc.ts",
     "dictionary:import-forms": "bun scripts/import-word-forms.ts",
+    "dictionary:import-english-forms": "bun scripts/import-english-forms.ts",
+    "dictionary:import-wikdict": "bun scripts/import-wikdict.ts",
     "preview": "vite preview"
   },
   "dependencies": {

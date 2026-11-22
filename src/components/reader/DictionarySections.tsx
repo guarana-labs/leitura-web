@@ -1,6 +1,10 @@
+import { useQueries } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { DictccSection } from '@/components/reader/DictccSection'
-import { useBaseWords } from '@/hooks/useVocabulary'
+import { DictionaryDirection } from '@/components/dictionary/DictionaryDirection'
+import { DictionarySection } from '@/components/reader/DictionarySection'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useChosenDictionary } from '@/hooks/useDictionaryChoices'
+import { dictionaryEntriesQuery, useBaseWords } from '@/hooks/useVocabulary'
 import type { LanguageProfile } from '@/lib/language'
 
 interface DictionarySectionsProps {
@@ -10,32 +14,65 @@ interface DictionarySectionsProps {
 }
 
 /**
- * [dictionary branch only] dict.cc translations of the clicked word, followed by
- * the translations of its base word(s) when it's an inflected form:
- *   "fängt" → dict.cc for "fängt" (if any), then "Forma base: fangen".
+ * [dictionary branch only] The chosen dictionary's senses for the clicked word,
+ * followed by those of its base word(s) when it's an inflected form:
+ *   "fängt" → senses of "fängt" (if any), then "Forma base: fangen".
  * Only the clicked word matters; the sentence around it isn't considered.
  */
 export function DictionarySections({ word, profile }: DictionarySectionsProps) {
   const { t } = useTranslation()
+  const { dictionary, isPending } = useChosenDictionary(profile.code)
   const key = profile.normalize(word)
   const baseWords = useBaseWords(profile.code, key)
   const bases = baseWords.data ?? []
 
+  // Base words are listed for every German dictionary, so the chosen one may not
+  // have some of them: only the ones it can translate get a section.
+  const baseEntries = useQueries({
+    queries: bases.map((base) => ({
+      ...dictionaryEntriesQuery<unknown>(dictionary?.id ?? '', profile.normalize(base)),
+      enabled: dictionary !== null,
+    })),
+  })
+  const translatedBases = bases.filter((_, index) => (baseEntries[index]?.data?.length ?? 0) > 0)
+  const basesLoading = baseWords.isPending || baseEntries.some((query) => query.isPending)
+
+  if (isPending) {
+    return (
+      <div className="flex flex-col gap-1.5 border-t pt-3" aria-hidden>
+        <Skeleton className="h-3 w-2/5" />
+        <Skeleton className="h-3.5 w-full" />
+        <Skeleton className="h-3.5 w-4/5" />
+      </div>
+    )
+  }
+
+  if (!dictionary) {
+    return <p className="border-t pt-3 text-xs text-muted-foreground">{t('vocabulary.noDictionary')}</p>
+  }
+
   return (
     <>
-      <DictccSection
+      <DictionarySection
+        dictionary={dictionary}
         word={word}
         wordKey={key}
-        // While base words are loading, or when there are some, an empty exact
-        // entry is hidden: the base word's translations below are what matters.
-        hideWhenEmpty={baseWords.isPending || bases.length > 0}
+        title={
+          <>
+            {t(`dictionaries.${dictionary.id}.name`)} (<DictionaryDirection dictionary={dictionary} />)
+          </>
+        }
+        // While base words load, or when one of them has senses, an empty entry for
+        // the clicked form is hidden: the base word's senses below are what matters.
+        hideWhenEmpty={basesLoading || translatedBases.length > 0}
       />
-      {bases.map((base) => (
-        <DictccSection
+      {translatedBases.map((base) => (
+        <DictionarySection
           key={base}
+          dictionary={dictionary}
           word={base}
           wordKey={profile.normalize(base)}
-          title={t('vocabulary.dictcc.baseForm', { word: base })}
+          title={t('vocabulary.dictionary.baseForm', { word: base })}
         />
       ))}
     </>

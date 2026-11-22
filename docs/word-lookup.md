@@ -1,6 +1,17 @@
 # How a word is looked up
 
-> `dictionary` branch only. German books.
+> `dictionary` branch only. German and English books.
+
+The dictionary is the one chosen for the book's language on the **Configurações**
+page (stored in `user_dictionaries`):
+
+| Book language | Dictionaries | Default |
+|---|---|---|
+| German | dict.cc (German → English), WikDict (German → Portuguese) | dict.cc |
+| English | WikDict (English → Portuguese) | WikDict |
+
+The examples below use dict.cc; WikDict works the same way, except for the ranking
+in step 5.
 
 This explains the "black box": given **one clicked word** (as written on the page),
 what comes out of it. The sentence around the word is never used.
@@ -15,9 +26,9 @@ base word, **erwidern** ("to answer").*
 - **In:** the word exactly as written, e.g. `fängt`, plus the book's language (`de`).
 - **Out:**
   1. the user's status and own meaning for that word;
-  2. dict.cc translations of the word itself;
-  3. dict.cc translations of its **base word**, when it's an inflected form
-     (`fängt` → `fangen`).
+  2. the chosen dictionary's translations of the word itself;
+  3. its translations of the **base word**, when it's an inflected form
+     (`fängt` → `fangen`, `went` → `go`).
 
 ## The steps
 
@@ -47,25 +58,31 @@ Lowercase matters because every sentence starts with a capital letter: "Die" and
 
 ### 3. The word's own translations
 
-`dictionary_entries` is read by `(dict.cc, key)`. One row holds every dict.cc
-sense whose German headword, once cleaned, equals the key. Cleaning removes
+`dictionary_entries` is read by `(chosen dictionary, key)`. One row holds every
+sense whose headword, once cleaned, equals the key. For dict.cc, cleaning removes
 gender `{n}`, notes `[ugs.]`, `<abbr.>`, `(optional parts)` and placeholders
 (`etw.`, `jdm.`, `sich`, also joined: `jdn./etw.`), so `(jdm.) etw. [Akk.] sagen`
 is found under `sagen` and `jdn./etw. fangen` under `fangen`.
 
 ### 4. The base word
 
-`word_forms` is read by `(de, key)` and gives the base word(s):
-`fängt` → `[fangen]`, `bist` → `[sein]`, `Häusern` → `[Haus]`.
+`word_forms` is read by `(language, key)` and gives the base word(s):
+`fängt` → `[fangen]`, `bist` → `[sein]`, `Häusern` → `[Haus]`;
+`was` → `[be]`, `children` → `[child]`, `better` → `[good, well]`.
 A base word itself (`fangen`, `Haus`) has no row, so nothing extra is shown.
 
-Each base word then goes through step 3 and is shown as **Forma base: …**.
-If the clicked form has no translations of its own (`sagten`), its empty section
-is hidden and only the base word is shown.
+Each base word then goes through step 3 and is shown as **Forma base: …**, but
+only if the chosen dictionary has it. If the clicked form has no translations of
+its own (`sagten`), its empty section is hidden and only the base word is shown.
 
 ### 5. Rank the senses
 
-dict.cc doesn't say which sense is the most common, so the order comes from two
+**WikDict** comes with a quality score per sense, so its senses are stored best
+first; the box only puts the exact spelling first (`Essen` the noun before
+`essen` the verb). Senses of the same entry with the same translations are merged
+(`Haus` has 13 senses that all say "casa").
+
+**dict.cc** doesn't say which sense is the most common, so the order comes from two
 things.
 
 **Stored order (set at import).** Each word's senses are saved from the plainest,
@@ -101,7 +118,8 @@ The first 6 senses are shown, the rest behind "Mostrar todas".
 Both tables are filled once, offline, by scripts; the app only reads them.
 
 - **`dictionary_entries`**: the dict.cc German→English file, grouped by key and
-  sorted as in step 5 (`bun run dictionary:import`).
+  sorted as in step 5 (`bun run dictionary:import`), and the WikDict de-pt and
+  en-pt files from https://download.wikdict.com (`bun run dictionary:import-wikdict`).
 - **`word_forms`**: conjugation and declension tables from the npm packages
   `german-verbs-dict` and `german-words-dict` (based on LanguageTool), turned
   into "form → base words" (`bun run dictionary:import-forms`). Two cleanups:
@@ -111,7 +129,14 @@ Both tables are filled once, offline, by scripts; the app only reads them.
     ("er fängt an" uses `fängt` too), so the data says `fängt` belongs to
     fangen, anfangen, abfangen… A base that ends with another base is dropped,
     leaving `fangen`.
-  - **Only bases dict.cc knows.** No translation means nothing to show.
+  - **Only bases a German dictionary knows** (dict.cc or WikDict). No translation
+    means nothing to show.
+- **`word_forms` (English)**: AGID, the "Automatically Generated Inflection Database"
+  (https://github.com/en-wl/wordlist, `agid/infl.txt`), turned into "form → base
+  words" (`bun run dictionary:import-english-forms`). Archaic forms ("wast",
+  "thou art") and doubtful ones are left out, and only bases WikDict en-pt knows
+  are kept. The same rules as German apply (simplest base, a base word itself has
+  no row), and one spelling per key (`communists` → communist, not also Communist).
 
 ## Limits
 
