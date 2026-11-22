@@ -97,6 +97,10 @@ export function VocabularyText({ language, paragraphs, fontSize, fontFamily, isL
             userWord={userWords.data?.get(selected.key)}
             isSaving={saveWord.isPending}
             onSave={(value) => saveWord.mutate({ word: selected.key, value })}
+            // Close once saved; if saving fails, the box stays open with the typed text.
+            onSaveMeaning={(value) =>
+              saveWord.mutate({ word: selected.key, value }, { onSuccess: () => setSelected(null) })
+            }
           />
         )}
       </PopoverContent>

@@ -21,12 +21,15 @@ interface WordPanelProps {
   profile: LanguageProfile
   /** The user's current mark; undefined means NEW. */
   userWord: UserWord | undefined
+  /** Status changes (buttons or keys 1–4); the box stays open. */
   onSave: (value: { status: WordStatus; meaning: string | null }) => void
+  /** "Salvar significado"; the box closes once it's saved. */
+  onSaveMeaning: (value: { status: WordStatus; meaning: string | null }) => void
   isSaving: boolean
 }
 
 /** Box shown for a clicked word: status buttons (keys 1–4), dictionary and the user's own meaning. */
-export function WordPanel({ word, profile, userWord, onSave, isSaving }: WordPanelProps) {
+export function WordPanel({ word, profile, userWord, onSave, onSaveMeaning, isSaving }: WordPanelProps) {
   const { t } = useTranslation()
   const status = userWord?.status ?? 'new'
   const savedMeaning = userWord?.meaning ?? ''
@@ -109,7 +112,7 @@ export function WordPanel({ word, profile, userWord, onSave, isSaving }: WordPan
           variant="outline"
           className="self-end"
           disabled={isSaving || meaning.trim() === savedMeaning.trim()}
-          onClick={() => onSave({ status, meaning: meaning.trim() || null })}
+          onClick={() => onSaveMeaning({ status, meaning: meaning.trim() || null })}
         >
           {isSaving && <LoaderCircle className="animate-spin" aria-hidden />}
           {t('vocabulary.saveMeaning')}
