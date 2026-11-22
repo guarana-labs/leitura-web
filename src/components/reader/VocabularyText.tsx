@@ -62,6 +62,12 @@ export function VocabularyText({ language, paragraphs, fontSize, fontFamily, isL
       <PopoverContent
         className="max-h-[min(32rem,70svh)] w-80 overflow-y-auto"
         collisionPadding={12}
+        onPointerDownOutside={(event) => {
+          // A click on another word switches the box to that word in one click,
+          // instead of first closing it (which made a second click necessary).
+          const target = event.detail.originalEvent.target as Element | null
+          if (target?.closest('[data-word]')) event.preventDefault()
+        }}
         onOpenAutoFocus={(event) => {
           // Focus the box itself (not the first button), so keys 1–4 work right away.
           event.preventDefault()
