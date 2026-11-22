@@ -127,6 +127,17 @@ export type Database = {
         }
         Relationships: []
       }
+      /** [dictionary branch only] Imported dictionary data (see supabase/dictionary/). */
+      dictionary_entries: {
+        Row: {
+          dictionary: string
+          key: string
+          entries: Json
+        }
+        Insert: never
+        Update: never
+        Relationships: []
+      }
     }
     Views: { [_ in never]: never }
     Functions: {

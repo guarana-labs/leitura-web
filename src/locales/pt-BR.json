@@ -165,6 +165,14 @@
       "learned": "Aprendida",
       "ignored": "Ignorada"
     },
+    "dictionaryError": "Não foi possível consultar o dicionário.",
+    "noDefinition": "Nenhuma tradução encontrada.",
+    "dictcc": {
+      "title": "dict.cc (alemão → inglês)",
+      "showMore": "Mostrar todas ({{count}})",
+      "showLess": "Mostrar menos",
+      "germanOnly": "O dicionário (dict.cc) está disponível só para livros em alemão."
+    },
     "myMeaning": "Seu significado",
     "myMeaningPlaceholder": "Escreva com suas palavras…",
     "saveMeaning": "Salvar significado"

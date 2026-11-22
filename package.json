@@ -9,6 +9,7 @@
     "lint": "oxlint",
     "db:push": "bun scripts/db-push.ts",
     "dictionary:db": "bun scripts/dictionary-db.ts",
+    "dictionary:import": "bun scripts/import-dictcc.ts",
     "preview": "vite preview"
   },
   "dependencies": {

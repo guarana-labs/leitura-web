@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { LoaderCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { DictccSection } from '@/components/reader/DictccSection'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import type { LanguageProfile } from '@/lib/language'
@@ -24,7 +25,7 @@ interface WordPanelProps {
   isSaving: boolean
 }
 
-/** Box shown for a clicked word: status buttons (keys 1–4) and the user's own meaning. */
+/** Box shown for a clicked word: status buttons (keys 1–4), dictionary and the user's own meaning. */
 export function WordPanel({ word, profile, userWord, onSave, isSaving }: WordPanelProps) {
   const { t } = useTranslation()
   const status = userWord?.status ?? 'new'
@@ -80,6 +81,13 @@ export function WordPanel({ word, profile, userWord, onSave, isSaving }: WordPan
           </Button>
         ))}
       </div>
+
+      {/* Dictionary: dict.cc is German→English, so it's only offered for German books. */}
+      {profile.code === 'de' ? (
+        <DictccSection word={word} wordKey={profile.normalize(word)} />
+      ) : (
+        <p className="border-t pt-3 text-xs text-muted-foreground">{t('vocabulary.dictcc.germanOnly')}</p>
+      )}
 
       {/* The user's own meaning */}
       <section className="flex flex-col gap-2 border-t pt-3">

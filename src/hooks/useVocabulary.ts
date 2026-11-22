@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@/hooks/useAuth'
+import type { DictccEntry } from '@/lib/dictionary/dictcc'
+import { lookupDictcc } from '@/services/dictionaryService'
 import { getUserWords, saveUserWord } from '@/services/wordService'
 import type { UserWord, WordStatus } from '@/types/vocabulary'
 
@@ -47,5 +49,16 @@ export function useSaveUserWord(language: string) {
       // Put the previous colors back if saving failed.
       for (const [key, data] of context?.previous ?? []) queryClient.setQueryData(key, data)
     },
+  })
+}
+
+/** dict.cc senses for one lookup key; the data never changes, so it's cached for the session. */
+export function useDictcc(key: string, enabled: boolean) {
+  return useQuery<DictccEntry[]>({
+    queryKey: ['dictionary', 'dictcc-de-en', key],
+    queryFn: () => lookupDictcc(key),
+    enabled: enabled && key !== '',
+    staleTime: Infinity,
+    retry: 1,
   })
 }
