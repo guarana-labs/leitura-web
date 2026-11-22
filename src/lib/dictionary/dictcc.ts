@@ -18,8 +18,11 @@ export const DICTCC_DE_EN = 'dictcc-de-en'
 /** One sense: [german, english, wordType, subjectTags]. */
 export type DictccEntry = [german: string, english: string, type: string, tags: string]
 
-/** Placeholders in verb entries: "jdm. etw. sagen" → "sagen". */
-const PLACEHOLDERS = /\b(?:etw|jdm|jdn|jds|jd|sb|sth)\.(?=\s|$)|\bsich\b/g
+/** Placeholders in verb entries: "jdm. etw. sagen" → "sagen", also joined: "jdn./etw. fangen". */
+const PLACEHOLDERS = /\b(?:etw|jdm|jdn|jds|jd|sb|sth)\.(?=[\s/]|$)|\bsich\b/g
+
+/** A "/" left alone once the placeholders around it are gone ("jdn./etw." → "/"). */
+const LONE_SLASHES = /(?:^|\s)\/+(?=\s|$)/g
 
 /** Annotations in the German column: {gender}, [notes], <abbreviations>, (optional parts). */
 const ANNOTATIONS = /\{[^}]*\}|\[[^\]]*\]|<[^>]*>|\([^)]*\)/g
@@ -37,7 +40,12 @@ export function decodeEntities(value: string): string {
 
 /** The headword without annotations or placeholders, keeping its capitalization ("Essen {n}" → "Essen"). */
 export function cleanHeadword(german: string): string {
-  return german.replace(ANNOTATIONS, ' ').replace(PLACEHOLDERS, ' ').replace(/\s+/g, ' ').trim()
+  return german
+    .replace(ANNOTATIONS, ' ')
+    .replace(PLACEHOLDERS, ' ')
+    .replace(LONE_SLASHES, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 /**
