@@ -7,6 +7,25 @@ paginated reader that remembers where you stopped.
 
 ![Reading Dom Casmurro in Leitura, sepia theme](docs/screenshot.png)
 
+<table>
+  <tr>
+    <td colspan="2">
+      <img src="docs/dictionary-desktop.png" alt="Clicking a word in Alice's Adventures in Wonderland opens the English to Portuguese dictionary">
+      <p align="center">Click any word to see its meaning (English → Portuguese)</p>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="docs/dictionary-phone.png" alt="The dictionary on a phone" width="300">
+      <p>The same on a phone</p>
+    </td>
+    <td align="center" width="50%">
+      <img src="docs/reading-phone-night.png" alt="Reading Dom Casmurro on a phone, night theme" width="300">
+      <p>Night theme</p>
+    </td>
+  </tr>
+</table>
+
 ## Features
 
 - **PDF and EPUB import.** The text is extracted in the browser; the file itself is never uploaded or stored.
@@ -108,4 +127,5 @@ If you would like to use Leitura under different terms (for example in a closed-
 contact the author for a separate license.
 
 Third-party assets are listed in [CREDITS.md](CREDITS.md).
-The book in the screenshot is _Dom Casmurro_ by Machado de Assis (public domain, from Project Gutenberg).
+The books in the screenshots are _Dom Casmurro_ by Machado de Assis and _Alice's Adventures in Wonderland_ by Lewis Carroll
+(public domain, from Project Gutenberg). Dictionary entries come from [WikDict](https://www.wikdict.com) (CC BY-SA).

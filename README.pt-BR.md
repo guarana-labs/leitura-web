@@ -7,6 +7,25 @@ limpo e paginado, que lembra onde você parou.
 
 ![Lendo Dom Casmurro no Leitura, tema Sépia](docs/screenshot.png)
 
+<table>
+  <tr>
+    <td colspan="2">
+      <img src="docs/dictionary-desktop.png" alt="Clicar numa palavra de Alice's Adventures in Wonderland abre o dicionário de inglês para português">
+      <p align="center">Clique em qualquer palavra para ver o significado (inglês → português)</p>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="docs/dictionary-phone.png" alt="O dicionário no celular" width="300">
+      <p>O mesmo no celular</p>
+    </td>
+    <td align="center" width="50%">
+      <img src="docs/reading-phone-night.png" alt="Lendo Dom Casmurro no celular, tema Noite" width="300">
+      <p>Tema Noite</p>
+    </td>
+  </tr>
+</table>
+
 ## Funcionalidades
 
 - **Importação de PDF e EPUB.** O texto é extraído no navegador; o arquivo em si nunca é enviado nem guardado.
@@ -108,4 +127,5 @@ Se quiser usar o Leitura em outros termos (por exemplo, num produto de código f
 entre em contato com o autor para uma licença separada.
 
 Os recursos de terceiros estão listados em [CREDITS.md](CREDITS.md).
-O livro da captura de tela é _Dom Casmurro_, de Machado de Assis (domínio público, do Project Gutenberg).
+Os livros das capturas de tela são _Dom Casmurro_, de Machado de Assis, e _Alice's Adventures in Wonderland_, de Lewis Carroll
+(domínio público, do Project Gutenberg). Os verbetes do dicionário vêm do [WikDict](https://www.wikdict.com) (CC BY-SA).
