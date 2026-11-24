@@ -5,7 +5,7 @@
 A web app for reading your own books. Import a PDF or EPUB and read it in a clean,
 paginated reader that remembers where you stopped.
 
-![Reading Dom Casmurro in Leitura, night theme](docs/screenshot.png)
+![Reading Dom Casmurro in Leitura, sepia theme](docs/screenshot.png)
 
 ## Features
 
