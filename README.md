@@ -1,26 +1,46 @@
 # Leitura
 
-Import your PDF books and read them in a clean, paginated reader.
-The PDF itself is never stored: its text is extracted in the browser, split
-into pages of about _N_ words (never cutting a paragraph) and saved to Supabase.
+**English** · [Português](README.pt-BR.md)
 
-Stack: React + Vite + TypeScript, shadcn/ui, Tailwind CSS, Supabase, Bun.
-The UI is in Brazilian Portuguese (`src/locales/pt-BR.json`); code and comments are in English.
+A web app for reading your own books. Import a PDF or EPUB and read it in a clean,
+paginated reader that remembers where you stopped.
+
+![Reading Dom Casmurro in Leitura, night theme](docs/screenshot.png)
+
+## Features
+
+- **PDF and EPUB import.** The text is extracted in the browser; the file itself is never uploaded or stored.
+- **Pages that fit a reading session.** Books are split into pages of about _N_ words (you choose), never cutting a paragraph.
+  Before saving you can review the title, author, language and cover, and preview the pages.
+- **A reader made for long sessions.** Three themes (Papel, Sépia, Noite), three fonts (Geist, Literata, Atkinson Hyperlegible),
+  adjustable text size, full screen and a page index.
+- **Progress.** Every book opens where you left off.
+- **Library** as a list or a grid of covers, with editing and deleting from the book menu.
+- **Accounts** with email and password, including password recovery. Each user only sees their own books.
+- Works on phones as well as on desktop.
+
+The interface is in Brazilian Portuguese. Code and comments are in English.
+
+## Stack
+
+React, Vite, TypeScript, Tailwind CSS, shadcn/ui, TanStack Query, i18next and Supabase (auth, Postgres, storage), with Bun as the package manager.
 
 ## Getting started
+
+You need [Bun](https://bun.sh) and a [Supabase](https://supabase.com) project (the free plan is enough).
 
 ```bash
 bun install
 bun run dev
 ```
 
-## Supabase setup
+### Supabase setup
 
-1. **Environment variables.** Copy `.env.example` to `.env.local` and fill in the
-   values from _Project Settings → API Keys_ (Project URL and the **publishable** key, `sb_publishable_…`).
+1. **Environment variables.** Copy `.env.example` to `.env.local` and fill in the values from
+   _Project Settings → API Keys_ (Project URL and the **publishable** key, `sb_publishable_…`).
    Never put the secret key (`sb_secret_…`) in a `VITE_` variable: those are bundled into the public JavaScript.
 2. **Database.** Add `DATABASE_URL` to `.env` (dashboard → _Connect_ → **Session pooler** string;
-   the direct `db.<ref>.supabase.co` host needs IPv6). Then apply pending migrations:
+   the direct `db.<ref>.supabase.co` host needs IPv6). Then apply the migrations:
 
    ```bash
    bun run db:push
@@ -31,6 +51,8 @@ bun run dev
 3. **Auth.** In _Authentication → Sign In / Providers → Email_:
    - keep **Email** enabled;
    - turn **off** "Confirm email" (users can sign in right after signing up).
+4. **Password recovery.** In _Authentication → URL Configuration_, set the Site URL to where the app runs
+   and add `<your-url>/reset-password` to the Redirect URLs.
 
 ### Data model
 
@@ -52,8 +74,9 @@ src/
   pages/        route screens; compose components, no data logic
   components/
     ui/         shadcn/ui components (generated)
-    layout/     header, page shell
-    books/      library table, cover, book form, go-to-page
+    layout/     header, footer, page shell
+    auth/       sign in, sign up and password recovery forms
+    books/      library list and grid, cover, book form, page index
     reader/     reader view and controls
     import/     file dropzone, extraction progress, review and preview
   services/     all Supabase access (auth, books, pages, progress, covers)
@@ -71,3 +94,18 @@ src/
 supabase/
   migrations/   SQL migrations
 ```
+
+## License
+
+Copyright © 2026 Gabriel Bento
+
+Leitura is free software under the [GNU Affero General Public License v3.0](LICENSE).
+You can use, study, change and share it. If you distribute it, or run a modified version
+as a service others can use, you must publish your source code under the same license
+and keep the original copyright notice.
+
+If you would like to use Leitura under different terms (for example in a closed-source product),
+contact the author for a separate license.
+
+Third-party assets are listed in [CREDITS.md](CREDITS.md).
+The book in the screenshot is _Dom Casmurro_ by Machado de Assis (public domain, from Project Gutenberg).
