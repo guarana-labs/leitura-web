@@ -9,7 +9,8 @@ pdfjs.GlobalWorkerOptions.workerSrc = workerUrl
 
 /**
  * Reads a PDF file entirely in the browser and returns its text as paragraphs,
- * with its images between them. The file itself is never uploaded or stored.
+ * with its images between them. The first page is offered as the cover.
+ * The file itself is never uploaded or stored.
  */
 export async function readPdfBook(file: File, onProgress?: ProgressCallback): Promise<SourceBook> {
   const data = new Uint8Array(await file.arrayBuffer())
@@ -26,7 +27,11 @@ export async function readPdfBook(file: File, onProgress?: ProgressCallback): Pr
   try {
     const images = new Map<string, Blob>()
     const readImages = async (pageNumber: number) => readPageImages(await pdf.getPage(pageNumber), pageNumber, images)
-    const [book, metadata] = await Promise.all([extractBook(pdf, onProgress, readImages), readMetadata(pdf)])
+    const [book, metadata, cover] = await Promise.all([
+      extractBook(pdf, onProgress, readImages),
+      readMetadata(pdf),
+      renderFirstPage(pdf),
+    ])
     return {
       metadata: {
         title: metadata.title || titleFromFileName(file.name),
@@ -35,13 +40,30 @@ export async function readPdfBook(file: File, onProgress?: ProgressCallback): Pr
       },
       sections: [book.blocks],
       images,
-      // PDFs don't declare a cover.
-      cover: null,
+      cover,
       fixedLayout: false,
     }
   } finally {
     // Frees the parsed document in the pdf.js worker.
     void loadingTask.destroy()
+  }
+}
+
+/** Width of the cover picture rendered from the first page. */
+const COVER_WIDTH = 800
+
+/** PDFs don't declare a cover, so the first page is offered as one (the user can change or remove it). */
+async function renderFirstPage(pdf: pdfjs.PDFDocumentProxy): Promise<Blob | null> {
+  try {
+    const page = await pdf.getPage(1)
+    const viewport = page.getViewport({ scale: COVER_WIDTH / page.getViewport({ scale: 1 }).width })
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.round(viewport.width)
+    canvas.height = Math.round(viewport.height)
+    await page.render({ canvas, viewport }).promise
+    return await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.9))
+  } catch {
+    return null
   }
 }
 
