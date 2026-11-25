@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { useBook } from '@/hooks/useBooks'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { useKeyboardPaging } from '@/hooks/useKeyboardPaging'
-import { usePage, usePrefetchPages, useSaveProgress } from '@/hooks/useReader'
+import { useBookImageUrls, usePage, usePrefetchPages, useSaveProgress } from '@/hooks/useReader'
 import { useReaderSettings } from '@/hooks/useReaderSettings'
 import { useReaderThemeClass } from '@/hooks/useReaderThemeClass'
 import { readerFontFamily } from '@/lib/readerFonts'
@@ -28,6 +28,7 @@ export function ReaderPage() {
 
   const bookQuery = useBook(bookId)
   const pageQuery = usePage(bookId, pageNumber)
+  const imageUrlsQuery = useBookImageUrls(pageQuery.data?.images.map((image) => image.path) ?? [])
   const saveProgress = useSaveProgress(bookId)
   const settings = useReaderSettings()
   useReaderThemeClass(settings.readerTheme)
@@ -117,6 +118,8 @@ export function ReaderPage() {
         ) : (
           <ReaderPageView
             paragraphs={pageQuery.data.paragraphs}
+            images={pageQuery.data.images}
+            imageUrls={imageUrlsQuery.data}
             fontSize={settings.fontSize}
             fontFamily={readerFontFamily(settings.font)}
             isLastPage={pageNumber === totalPages}

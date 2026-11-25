@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { bookKeys } from '@/hooks/useBooks'
 import { useAuth } from '@/hooks/useAuth'
+import { getBookImageUrls, IMAGE_URL_TTL_SECONDS } from '@/services/bookImageService'
 import { getPage, listPageSummaries } from '@/services/pageService'
 import { saveProgress } from '@/services/progressService'
 import type { BookPage, BookSummary, PageSummary } from '@/types/book'
@@ -28,6 +29,22 @@ export function usePage(bookId: string, pageNumber: number) {
     queryFn: () => getPage(bookId, pageNumber),
     staleTime: Infinity,
     enabled: pageNumber >= 1,
+  })
+}
+
+/**
+ * Signed URLs for a page's images. Pages are cached for the whole session but
+ * signed URLs expire, so these are refreshed a bit before they do.
+ */
+export function useBookImageUrls(paths: string[]) {
+  const userId = useAuth().user?.id ?? 'anonymous'
+  const key = [...new Set(paths)].sort()
+  return useQuery<Map<string, string>>({
+    queryKey: [...bookKeys.all(userId), 'imageUrls', ...key],
+    queryFn: () => getBookImageUrls(key),
+    staleTime: (IMAGE_URL_TTL_SECONDS - 10 * 60) * 1000,
+    refetchInterval: (IMAGE_URL_TTL_SECONDS - 10 * 60) * 1000,
+    enabled: key.length > 0,
   })
 }
 

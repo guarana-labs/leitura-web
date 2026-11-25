@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CircleAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
@@ -11,6 +11,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { useImportBook } from '@/hooks/useImportBook'
 import { detectBookFileKind, readBookFile } from '@/lib/import/readBookFile'
 import { languageFromTag } from '@/lib/languages'
+import { coverFromImage } from '@/utils/cropImage'
 import type { BookImport } from '@/types/book'
 
 const MAX_FILE_BYTES = 100 * 1024 * 1024
@@ -23,13 +24,24 @@ type Step =
 
 /**
  * Import flow: choose a PDF or EPUB → extract its text in the browser → review → save.
- * Only the extracted text (and an optional cover) is saved; the file is discarded.
+ * Only the extracted text, the book's images and the cover (taken from the file
+ * when it has one, and changeable) are saved; the file itself is discarded.
  */
 export function ImportBookPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const importMutation = useImportBook()
   const [step, setStep] = useState<Step>({ name: 'select', error: null })
+  const [imageProgress, setImageProgress] = useState<{ done: number; total: number } | null>(null)
+
+  // Release the preview's image URLs when the draft goes away (cancel, save or leaving the page).
+  const previewUrls = step.name === 'review' ? step.draft.imageUrls : null
+  useEffect(() => {
+    if (!previewUrls) return
+    return () => {
+      for (const url of previewUrls.values()) URL.revokeObjectURL(url)
+    }
+  }, [previewUrls])
 
   async function handleFile(file: File) {
     const kind = detectBookFileKind(file)
@@ -47,6 +59,9 @@ export function ImportBookPage() {
       const book = await readBookFile(file, kind, (progress) =>
         setStep({ name: 'extracting', fileName: file.name, progress }),
       )
+      // The book's own cover, ready to use; the user can still change or remove it.
+      // A cover that can't be processed is simply left out.
+      const cover = book.cover ? await coverFromImage(book.cover).catch(() => null) : null
       setStep({
         name: 'review',
         draft: {
@@ -57,7 +72,10 @@ export function ImportBookPage() {
           language: languageFromTag(book.metadata.language),
           wordsPerPage: DEFAULT_WORDS_PER_PAGE,
           sections: book.sections,
-          cover: null,
+          images: book.images,
+          imageUrls: new Map([...book.images].map(([key, blob]) => [key, URL.createObjectURL(blob)])),
+          fixedLayout: book.fixedLayout,
+          cover,
         },
       })
     } catch (error) {
@@ -66,12 +84,15 @@ export function ImportBookPage() {
   }
 
   function handleSave(book: BookImport, cover: Blob | null) {
+    setImageProgress(null)
     importMutation.mutate(
-      { book, cover },
+      { book, cover, onImageProgress: (done, total) => setImageProgress({ done, total }) },
       {
-        onSuccess: ({ coverFailed }) => {
-          if (coverFailed) toast.warning(t('toast.importedWithoutCover', { title: book.metadata.title }))
-          else toast.success(t('toast.imported', { title: book.metadata.title }))
+        onSuccess: ({ coverFailed, unreadableImages }) => {
+          const title = book.metadata.title
+          if (coverFailed) toast.warning(t('toast.importedWithoutCover', { title }))
+          else if (unreadableImages > 0) toast.warning(t('toast.importedWithoutSomeImages', { title, count: unreadableImages }))
+          else toast.success(t('toast.imported', { title }))
           navigate(paths.dashboard)
         },
       },
@@ -112,6 +133,11 @@ export function ImportBookPage() {
           }}
           onSave={handleSave}
           isSaving={importMutation.isPending}
+          savingLabel={
+            imageProgress && imageProgress.done < imageProgress.total
+              ? t('import.savingImages', { done: imageProgress.done, total: imageProgress.total })
+              : null
+          }
           saveError={importMutation.isError ? t('import.errors.saveFailed') : null}
         />
       )}

@@ -26,6 +26,25 @@ export async function cropToCover(imageUrl: string, crop: PixelCrop): Promise<Bl
   })
 }
 
+/**
+ * Turns a book's own cover image into a cover: the largest centered 2:3 area,
+ * as a 600×900 WebP. Covers are usually close to 2:3, so little or nothing is cut.
+ */
+export async function coverFromImage(file: Blob): Promise<Blob> {
+  const url = URL.createObjectURL(file)
+  try {
+    const { naturalWidth: width, naturalHeight: height } = await loadImage(url)
+    if (!width || !height) throw new Error('Image has no size')
+    const targetRatio = COVER_WIDTH / COVER_HEIGHT
+    const cropWidth = Math.min(width, height * targetRatio)
+    const cropHeight = cropWidth / targetRatio
+    const crop = { x: (width - cropWidth) / 2, y: (height - cropHeight) / 2, width: cropWidth, height: cropHeight }
+    return await cropToCover(url, crop)
+  } finally {
+    URL.revokeObjectURL(url)
+  }
+}
+
 function loadImage(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image()

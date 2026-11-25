@@ -117,7 +117,7 @@
         "title": "O que fica guardado",
         "items": [
           "Sua conta: e-mail e senha. A senha não fica guardada em texto legível, nem eu consigo vê-la.",
-          "Seus livros: título, autor, descrição, idioma, capa e o texto de cada página. O arquivo original (PDF ou EPUB) não é armazenado.",
+          "Seus livros: título, autor, descrição, idioma, capa, o texto de cada página e as imagens do livro. O arquivo original (PDF ou EPUB) não é armazenado.",
           "Seu progresso de leitura: a página em que você parou e quando leu pela última vez."
         ]
       },
@@ -138,7 +138,7 @@
       {
         "title": "Excluir sua conta",
         "paragraphs": [
-          "Você pode excluir sua conta a qualquer momento pelo menu da conta, em “Excluir conta”. Isso apaga permanentemente seu login, seus livros, capas e progresso de leitura."
+          "Você pode excluir sua conta a qualquer momento pelo menu da conta, em “Excluir conta”. Isso apaga permanentemente seu login, seus livros, capas, imagens e progresso de leitura."
         ]
       }
     ],
@@ -150,6 +150,8 @@
   "toast": {
     "imported": "“{{title}}” foi adicionado à sua biblioteca.",
     "importedWithoutCover": "“{{title}}” foi adicionado, mas a capa não pôde ser enviada. Você pode adicioná-la em Editar.",
+    "importedWithoutSomeImages_one": "“{{title}}” foi adicionado, mas {{count}} imagem não pôde ser lida e ficou de fora.",
+    "importedWithoutSomeImages_other": "“{{title}}” foi adicionado, mas {{count}} imagens não puderam ser lidas e ficaram de fora.",
     "updated": "Alterações em “{{title}}” salvas.",
     "deleted": "“{{title}}” foi excluído.",
     "passwordUpdated": "Senha atualizada."
@@ -187,9 +189,11 @@
   },
   "import": {
     "title": "Importar livro",
-    "subtitle": "O texto é extraído no seu navegador. O arquivo não é enviado nem armazenado.",
+    "subtitle": "O texto e as imagens são extraídos no seu navegador. O arquivo em si não é enviado nem armazenado.",
     "save": "Salvar livro",
     "saving": "Salvando…",
+    "savingImages": "Enviando imagens ({{done}} de {{total}})…",
+    "fixedLayout": "Este livro tem layout fixo (como quadrinhos e livros ilustrados): as páginas foram feitas como imagens com o texto por cima. Ele pode não ficar bem dividido em parágrafos.",
     "dropzone": {
       "title": "Arraste um PDF ou EPUB para cá",
       "description": "ou escolha um arquivo do seu computador (até 100 MB).",
@@ -204,7 +208,8 @@
     },
     "summary": {
       "pages": "Páginas",
-      "words": "Palavras"
+      "words": "Palavras",
+      "images": "Imagens"
     },
     "preview": {
       "label": "Prévia"

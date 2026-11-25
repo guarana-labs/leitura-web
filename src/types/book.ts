@@ -3,6 +3,8 @@
  * so components never depend on database column names.
  */
 
+import type { Page } from '@/lib/pagination/paginate'
+
 export interface Book {
   id: string
   title: string
@@ -32,11 +34,23 @@ export interface PageSummary {
   wordCount: number
 }
 
+/** An image on a saved page. */
+export interface PageImage {
+  /** Path in the `book-images` storage bucket. */
+  path: string
+  alt: string
+  width: number
+  height: number
+  /** Index of the paragraph the image comes before; equals the paragraph count when it's at the end. */
+  before: number
+}
+
 /** One page of a book: about `wordsPerPage` words, never cutting a paragraph. */
 export interface BookPage {
   bookId: string
   pageNumber: number
   paragraphs: string[]
+  images: PageImage[]
   wordCount: number
 }
 
@@ -46,7 +60,7 @@ export interface ReadingProgress {
   updatedAt: string
 }
 
-/** Input for `import_book`: what the browser produces after extracting a PDF. */
+/** What the browser produces after extracting a book file, ready to be saved. */
 export interface BookImport {
   metadata: {
     title: string
@@ -55,6 +69,8 @@ export interface BookImport {
     language?: string
   }
   wordsPerPage: number
-  /** The book's pages in order; each page is a list of paragraphs. */
-  pages: string[][]
+  /** The book's pages in order. */
+  pages: Page[]
+  /** Image files the pages use (original format), by the key in `PageImageRef.file`. */
+  images: Map<string, Blob>
 }

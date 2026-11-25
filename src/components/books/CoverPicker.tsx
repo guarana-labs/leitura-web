@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ImagePlus, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { BookCover } from '@/components/books/BookCover'
 import { CoverCropDialog } from '@/components/books/CoverCropDialog'
 import { Button } from '@/components/ui/button'
+import { useObjectUrl } from '@/hooks/useObjectUrl'
 
 /**
  * What the cover should be after saving:
@@ -25,17 +26,10 @@ export function CoverPicker({ title, value, onChange }: CoverPickerProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [sourceUrl, setSourceUrl] = useState<string | null>(null)
 
-  const newBlob = value.type === 'new' ? value.blob : null
-  const blobUrl = useMemo(() => (newBlob ? URL.createObjectURL(newBlob) : null), [newBlob])
+  const blobUrl = useObjectUrl(value.type === 'new' ? value.blob : null)
   const previewUrl = value.type === 'existing' ? value.url : blobUrl
 
   // Object URLs must be released, or the images stay in memory.
-  useEffect(() => {
-    return () => {
-      if (blobUrl) URL.revokeObjectURL(blobUrl)
-    }
-  }, [blobUrl])
-
   useEffect(() => {
     return () => {
       if (sourceUrl) URL.revokeObjectURL(sourceUrl)

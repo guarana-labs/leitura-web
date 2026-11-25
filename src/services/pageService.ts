@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
-import type { BookPage, PageSummary } from '@/types/book'
+import type { BookPage, PageImage, PageSummary } from '@/types/book'
+import type { Json } from '@/types/database'
 
 /** Supabase returns at most this many rows per request by default. */
 const ROWS_PER_REQUEST = 1000
@@ -29,7 +30,7 @@ export async function listPageSummaries(bookId: string): Promise<PageSummary[]> 
 export async function getPage(bookId: string, pageNumber: number): Promise<BookPage | null> {
   const { data, error } = await supabase
     .from('pages')
-    .select('book_id, page_number, paragraphs, word_count')
+    .select('book_id, page_number, paragraphs, images, word_count')
     .eq('book_id', bookId)
     .eq('page_number', pageNumber)
     .maybeSingle()
@@ -44,6 +45,26 @@ export async function getPage(bookId: string, pageNumber: number): Promise<BookP
     bookId: data.book_id,
     pageNumber: data.page_number,
     paragraphs: data.paragraphs,
+    images: toPageImages(data.images),
     wordCount: data.word_count,
   }
+}
+
+/** Reads the `images` column, skipping anything malformed rather than breaking the page. */
+function toPageImages(value: Json): PageImage[] {
+  if (!Array.isArray(value)) return []
+  return value.flatMap((item) => {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) return []
+    const { path, alt, width, height, before } = item
+    if (typeof path !== 'string' || typeof before !== 'number') return []
+    return [
+      {
+        path,
+        alt: typeof alt === 'string' ? alt : '',
+        width: typeof width === 'number' ? width : 0,
+        height: typeof height === 'number' ? height : 0,
+        before,
+      },
+    ]
+  })
 }

@@ -1,5 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react'
-import { CircleAlert, LoaderCircle } from 'lucide-react'
+import { CircleAlert, LoaderCircle, TriangleAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { BookMetadataFields } from '@/components/books/BookMetadataFields'
 import { CoverPicker } from '@/components/books/CoverPicker'
@@ -7,8 +7,10 @@ import { PagePreview } from '@/components/import/PagePreview'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { isImageBlock, type SourceBlock } from '@/lib/import/sourceBook'
 import type { BookLanguage } from '@/lib/languages'
 import { paginateSections } from '@/lib/pagination/paginate'
+import { cn } from '@/lib/utils'
 import type { BookImport } from '@/types/book'
 import { formatNumber } from '@/utils/format'
 import { countWords } from '@/utils/words'
@@ -20,8 +22,14 @@ export interface ImportDraft {
   description: string
   language: BookLanguage
   wordsPerPage: number
-  /** The extracted text; see SourceBook.sections. */
-  sections: string[][]
+  /** The extracted content; see SourceBook.sections. */
+  sections: SourceBlock[][]
+  /** Image files used in `sections`; see SourceBook.images. */
+  images: Map<string, Blob>
+  /** Local URLs of `images` for the preview (released by the import page). */
+  imageUrls: Map<string, string>
+  /** See SourceBook.fixedLayout. */
+  fixedLayout: boolean
   cover: Blob | null
 }
 
@@ -35,11 +43,13 @@ interface ImportReviewProps {
   onCancel: () => void
   onSave: (book: BookImport, cover: Blob | null) => void
   isSaving: boolean
+  /** What's happening while saving (e.g. "Enviando imagens 3 de 56…"), when there's more to say than "Salvando…". */
+  savingLabel: string | null
   saveError: string | null
 }
 
 /** Review step: book details, cover, totals and a preview of the pages. */
-export function ImportReview({ draft, onChange, onCancel, onSave, isSaving, saveError }: ImportReviewProps) {
+export function ImportReview({ draft, onChange, onCancel, onSave, isSaving, savingLabel, saveError }: ImportReviewProps) {
   const { t } = useTranslation()
   const [previewPage, setPreviewPage] = useState(1)
   const [showErrors, setShowErrors] = useState(false)
@@ -49,10 +59,9 @@ export function ImportReview({ draft, onChange, onCancel, onSave, isSaving, save
   // Cheap enough to redo whenever the page size changes.
   const pages = useMemo(() => paginateSections(draft.sections, wordsPerPage), [draft.sections, wordsPerPage])
   const totalWords = useMemo(
-    () => draft.sections.flat().reduce((sum, paragraph) => sum + countWords(paragraph), 0),
+    () => draft.sections.flat().reduce((sum, block) => sum + (isImageBlock(block) ? 0 : countWords(block)), 0),
     [draft.sections],
   )
-
   const shownPage = Math.min(previewPage, pages.length)
   const titleMissing = draft.title.trim() === ''
   const wordsPerPageInvalid =
@@ -78,6 +87,7 @@ export function ImportReview({ draft, onChange, onCancel, onSave, isSaving, save
         },
         wordsPerPage,
         pages,
+        images: draft.images,
       },
       draft.cover,
     )
@@ -117,10 +127,26 @@ export function ImportReview({ draft, onChange, onCancel, onSave, isSaving, save
 
       {/* Right: totals and preview */}
       <section className="flex min-w-0 flex-col gap-5">
-        <dl className="grid grid-cols-2 overflow-hidden rounded-lg border text-center">
+        {draft.fixedLayout && (
+          <div
+            role="note"
+            className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-900 dark:text-amber-200"
+          >
+            <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
+            <span>{t('import.fixedLayout')}</span>
+          </div>
+        )}
+
+        <dl
+          className={cn(
+            'grid overflow-hidden rounded-lg border text-center',
+            draft.images.size > 0 ? 'grid-cols-3' : 'grid-cols-2',
+          )}
+        >
           {[
             [t('import.summary.pages'), formatNumber(pages.length)],
             [t('import.summary.words'), formatNumber(totalWords)],
+            ...(draft.images.size > 0 ? [[t('import.summary.images'), formatNumber(draft.images.size)]] : []),
           ].map(([label, value]) => (
             <div key={label} className="border-r px-3 py-3 last:border-r-0">
               <dt className="text-xs text-muted-foreground">{label}</dt>
@@ -133,7 +159,8 @@ export function ImportReview({ draft, onChange, onCancel, onSave, isSaving, save
           <PagePreview
             pageNumber={shownPage}
             totalPages={pages.length}
-            paragraphs={pages[shownPage - 1]}
+            page={pages[shownPage - 1]}
+            imageUrls={draft.imageUrls}
             onPrevious={() => setPreviewPage(Math.max(1, shownPage - 1))}
             onNext={() => setPreviewPage(Math.min(pages.length, shownPage + 1))}
           />
@@ -155,7 +182,7 @@ export function ImportReview({ draft, onChange, onCancel, onSave, isSaving, save
           </Button>
           <Button type="submit" disabled={isSaving}>
             {isSaving && <LoaderCircle className="animate-spin" aria-hidden />}
-            {isSaving ? t('import.saving') : t('import.save')}
+            {isSaving ? (savingLabel ?? t('import.saving')) : t('import.save')}
           </Button>
         </div>
       </section>
