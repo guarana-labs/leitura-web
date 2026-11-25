@@ -1,16 +1,29 @@
 import { useTranslation } from 'react-i18next'
+import { BookImage } from '@/components/reader/BookImage'
 import { Skeleton } from '@/components/ui/skeleton'
+import { pageBlocks } from '@/lib/pagination/pageBlocks'
+import type { PageImage } from '@/types/book'
 
 interface ReaderPageViewProps {
   paragraphs: string[]
+  images: PageImage[]
+  /** Signed URLs of the page's images, by storage path (missing while they load). */
+  imageUrls: Map<string, string> | undefined
   fontSize: number
   /** CSS font-family of the chosen reading font. */
   fontFamily: string
   isLastPage: boolean
 }
 
-/** The text of one page, set for comfortable reading. */
-export function ReaderPageView({ paragraphs, fontSize, fontFamily, isLastPage }: ReaderPageViewProps) {
+/** The text (and images) of one page, set for comfortable reading. */
+export function ReaderPageView({
+  paragraphs,
+  images,
+  imageUrls,
+  fontSize,
+  fontFamily,
+  isLastPage,
+}: ReaderPageViewProps) {
   const { t } = useTranslation()
 
   return (
@@ -19,9 +32,19 @@ export function ReaderPageView({ paragraphs, fontSize, fontFamily, isLastPage }:
     // (`ch` was uneven: Literata's wide "0" made its lines much shorter than the sans fonts'.)
     <article className="mx-auto flex w-full max-w-[31em] flex-col" style={{ fontSize: `${fontSize}px`, fontFamily }}>
       <div className="flex flex-col gap-[1em] leading-[1.65] text-pretty">
-        {paragraphs.map((paragraph, index) => (
-          <p key={index}>{paragraph}</p>
-        ))}
+        {pageBlocks(paragraphs, images).map((block, index) =>
+          block.type === 'text' ? (
+            <p key={index}>{block.text}</p>
+          ) : (
+            <BookImage
+              key={index}
+              url={imageUrls?.get(block.image.path) ?? null}
+              alt={block.image.alt}
+              width={block.image.width || undefined}
+              height={block.image.height || undefined}
+            />
+          ),
+        )}
       </div>
 
       {isLastPage && (
