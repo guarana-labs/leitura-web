@@ -33,6 +33,8 @@ export async function readPdfBook(file: File, onProgress?: ProgressCallback): Pr
       sections: [book.paragraphs],
       // PDF images aren't extracted (yet).
       images: new Map(),
+      // PDFs don't declare a cover.
+      cover: null,
       fixedLayout: false,
     }
   } finally {

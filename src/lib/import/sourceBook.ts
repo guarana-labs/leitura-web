@@ -35,6 +35,8 @@ export interface SourceBook {
   sections: SourceBlock[][]
   /** Image files used in `sections`, by key. Each file appears once, however often it's used. */
   images: Map<string, SourceImageFile>
+  /** The cover image the file declares (original format, not cropped), if any. */
+  cover: Blob | null
   /**
    * True for fixed-layout EPUBs (comics, picture books): pages are designed as
    * pictures with text placed on top, which can't be split into paragraphs well.

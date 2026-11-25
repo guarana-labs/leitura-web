@@ -32,7 +32,7 @@ export async function readEpubBook(file: File, onProgress?: ProgressCallback): P
 
   const opf = parseXml(opfXml)
   const metadata = readMetadata(opf)
-  const { documents, mediaTypes } = readManifest(opf, opfPath)
+  const { documents, mediaTypes, coverPath } = readManifest(opf, opfPath)
   const images: SourceBook['images'] = new Map()
   const addImage = (path: string) => loadImage(path, files, mediaTypes, images)
 
@@ -66,6 +66,7 @@ export async function readEpubBook(file: File, onProgress?: ProgressCallback): P
     },
     sections,
     images,
+    cover: coverPath && files[coverPath] ? new Blob([files[coverPath].slice()], { type: mediaTypes.get(coverPath) }) : null,
     fixedLayout: /pre-paginated/.test(opfXml),
   }
 }
@@ -112,18 +113,28 @@ function displayName(name: string): string {
   return parts.length === 2 && parts[0] && parts[1] ? `${parts[1]} ${parts[0]}` : name
 }
 
-/**
- * The documents to read, in reading order, and the media type of every file
- * listed in the package (paths inside the zip).
- */
-function readManifest(opf: Document, opfPath: string): { documents: string[]; mediaTypes: Map<string, string> } {
-  const manifest = new Map<string, { path: string; mediaType: string }>()
+interface Manifest {
+  /** The documents to read, in reading order. */
+  documents: string[]
+  /** Media type of every file listed in the package. */
+  mediaTypes: Map<string, string>
+  /** The cover image the package declares, if any. */
+  coverPath: string | null
+}
+
+/** Reads the package's file list (paths inside the zip). */
+function readManifest(opf: Document, opfPath: string): Manifest {
+  const manifest = new Map<string, { path: string; mediaType: string; properties: string }>()
   const mediaTypes = new Map<string, string>()
   for (const item of opf.getElementsByTagNameNS('*', 'item')) {
     const id = item.getAttribute('id')
     const href = item.getAttribute('href')
     if (!id || !href) continue
-    const entry = { path: resolvePath(opfPath, href), mediaType: item.getAttribute('media-type') ?? '' }
+    const entry = {
+      path: resolvePath(opfPath, href),
+      mediaType: item.getAttribute('media-type') ?? '',
+      properties: item.getAttribute('properties') ?? '',
+    }
     manifest.set(id, entry)
     mediaTypes.set(entry.path, entry.mediaType)
   }
@@ -134,7 +145,16 @@ function readManifest(opf: Document, opfPath: string): { documents: string[]; me
     const entry = manifest.get(itemref.getAttribute('idref') ?? '')
     if (entry && /html/.test(entry.mediaType)) documents.push(entry.path)
   }
-  return { documents, mediaTypes }
+
+  // EPUB 3 marks the cover with properties="cover-image"; EPUB 2 uses <meta name="cover" content="<item id>">.
+  const items = [...manifest.values()]
+  const coverMeta = [...opf.getElementsByTagNameNS('*', 'meta')].find((meta) => meta.getAttribute('name') === 'cover')
+  const cover =
+    items.find((item) => item.properties.split(/\s+/).includes('cover-image')) ??
+    manifest.get(coverMeta?.getAttribute('content') ?? '')
+  const coverPath = cover?.mediaType.startsWith('image/') ? cover.path : null
+
+  return { documents, mediaTypes, coverPath }
 }
 
 /** Resolves an href relative to a file in the zip (the OPF or a document) into a path inside the zip. */

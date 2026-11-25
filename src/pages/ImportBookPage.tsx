@@ -11,6 +11,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { useImportBook } from '@/hooks/useImportBook'
 import { detectBookFileKind, readBookFile } from '@/lib/import/readBookFile'
 import { languageFromTag } from '@/lib/languages'
+import { coverFromImage } from '@/utils/cropImage'
 import type { BookImport } from '@/types/book'
 
 const MAX_FILE_BYTES = 100 * 1024 * 1024
@@ -23,7 +24,8 @@ type Step =
 
 /**
  * Import flow: choose a PDF or EPUB → extract its text in the browser → review → save.
- * Only the extracted text (and an optional cover) is saved; the file is discarded.
+ * Only the extracted text, the book's images and the cover (taken from the file
+ * when it has one, and changeable) are saved; the file itself is discarded.
  */
 export function ImportBookPage() {
   const { t } = useTranslation()
@@ -57,6 +59,9 @@ export function ImportBookPage() {
       const book = await readBookFile(file, kind, (progress) =>
         setStep({ name: 'extracting', fileName: file.name, progress }),
       )
+      // The book's own cover, ready to use; the user can still change or remove it.
+      // A cover that can't be processed is simply left out.
+      const cover = book.cover ? await coverFromImage(book.cover).catch(() => null) : null
       setStep({
         name: 'review',
         draft: {
@@ -70,7 +75,7 @@ export function ImportBookPage() {
           images: book.images,
           imageUrls: new Map([...book.images].map(([key, blob]) => [key, URL.createObjectURL(blob)])),
           fixedLayout: book.fixedLayout,
-          cover: null,
+          cover,
         },
       })
     } catch (error) {
