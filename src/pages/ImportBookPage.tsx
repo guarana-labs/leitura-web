@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CircleAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
@@ -30,6 +30,16 @@ export function ImportBookPage() {
   const navigate = useNavigate()
   const importMutation = useImportBook()
   const [step, setStep] = useState<Step>({ name: 'select', error: null })
+  const [imageProgress, setImageProgress] = useState<{ done: number; total: number } | null>(null)
+
+  // Release the preview's image URLs when the draft goes away (cancel, save or leaving the page).
+  const previewUrls = step.name === 'review' ? step.draft.imageUrls : null
+  useEffect(() => {
+    if (!previewUrls) return
+    return () => {
+      for (const url of previewUrls.values()) URL.revokeObjectURL(url)
+    }
+  }, [previewUrls])
 
   async function handleFile(file: File) {
     const kind = detectBookFileKind(file)
@@ -57,6 +67,9 @@ export function ImportBookPage() {
           language: languageFromTag(book.metadata.language),
           wordsPerPage: DEFAULT_WORDS_PER_PAGE,
           sections: book.sections,
+          images: book.images,
+          imageUrls: new Map([...book.images].map(([key, blob]) => [key, URL.createObjectURL(blob)])),
+          fixedLayout: book.fixedLayout,
           cover: null,
         },
       })
@@ -66,12 +79,15 @@ export function ImportBookPage() {
   }
 
   function handleSave(book: BookImport, cover: Blob | null) {
+    setImageProgress(null)
     importMutation.mutate(
-      { book, cover },
+      { book, cover, onImageProgress: (done, total) => setImageProgress({ done, total }) },
       {
-        onSuccess: ({ coverFailed }) => {
-          if (coverFailed) toast.warning(t('toast.importedWithoutCover', { title: book.metadata.title }))
-          else toast.success(t('toast.imported', { title: book.metadata.title }))
+        onSuccess: ({ coverFailed, unreadableImages }) => {
+          const title = book.metadata.title
+          if (coverFailed) toast.warning(t('toast.importedWithoutCover', { title }))
+          else if (unreadableImages > 0) toast.warning(t('toast.importedWithoutSomeImages', { title, count: unreadableImages }))
+          else toast.success(t('toast.imported', { title }))
           navigate(paths.dashboard)
         },
       },
@@ -112,6 +128,11 @@ export function ImportBookPage() {
           }}
           onSave={handleSave}
           isSaving={importMutation.isPending}
+          savingLabel={
+            imageProgress && imageProgress.done < imageProgress.total
+              ? t('import.savingImages', { done: imageProgress.done, total: imageProgress.total })
+              : null
+          }
           saveError={importMutation.isError ? t('import.errors.saveFailed') : null}
         />
       )}

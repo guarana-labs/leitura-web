@@ -1,17 +1,22 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { BookImage } from '@/components/reader/BookImage'
 import { Button } from '@/components/ui/button'
+import { pageBlocks } from '@/lib/pagination/pageBlocks'
+import type { Page } from '@/lib/pagination/paginate'
 
 interface PagePreviewProps {
   pageNumber: number
   totalPages: number
-  paragraphs: string[]
+  page: Page
+  /** Local URLs of the book's image files, by key. */
+  imageUrls: Map<string, string>
   onPrevious: () => void
   onNext: () => void
 }
 
 /** Lets the user flip through the pages before saving, to check the extraction quality. */
-export function PagePreview({ pageNumber, totalPages, paragraphs, onPrevious, onNext }: PagePreviewProps) {
+export function PagePreview({ pageNumber, totalPages, page, imageUrls, onPrevious, onNext }: PagePreviewProps) {
   const { t } = useTranslation()
 
   return (
@@ -45,9 +50,13 @@ export function PagePreview({ pageNumber, totalPages, paragraphs, onPrevious, on
         </Button>
       </div>
       <article className="flex max-h-[32rem] flex-col gap-3 overflow-y-auto px-5 py-4 text-[15px] leading-7">
-        {paragraphs.map((paragraph, index) => (
-          <p key={index}>{paragraph}</p>
-        ))}
+        {pageBlocks(page.paragraphs, page.images).map((block, index) =>
+          block.type === 'text' ? (
+            <p key={index}>{block.text}</p>
+          ) : (
+            <BookImage key={index} url={imageUrls.get(block.image.file) ?? null} alt={block.image.alt} />
+          ),
+        )}
       </article>
     </div>
   )

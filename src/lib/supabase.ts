@@ -20,3 +20,6 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseKey)
 
 /** Name of the storage bucket that holds book covers. */
 export const COVERS_BUCKET = 'covers'
+
+/** Name of the storage bucket that holds the images inside books. */
+export const BOOK_IMAGES_BUCKET = 'book-images'
