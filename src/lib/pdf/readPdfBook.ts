@@ -31,6 +31,9 @@ export async function readPdfBook(file: File, onProgress?: ProgressCallback): Pr
         language: null,
       },
       sections: [book.paragraphs],
+      // PDF images aren't extracted (yet).
+      images: new Map(),
+      fixedLayout: false,
     }
   } finally {
     // Frees the parsed document in the pdf.js worker.

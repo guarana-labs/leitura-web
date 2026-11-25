@@ -1,7 +1,24 @@
 /**
  * What every file reader (PDF, EPUB, ...) produces: the book's text as
- * paragraphs, plus metadata suggestions the user can change before saving.
+ * paragraphs (and images, for EPUBs), plus metadata suggestions the user can
+ * change before saving.
  */
+
+/** An image in the text. `file` is a key into `SourceBook.images`. */
+export interface SourceImage {
+  type: 'image'
+  file: string
+  alt: string
+  /** Size in pixels, when the browser could read it (not for every SVG). */
+  width?: number
+  height?: number
+}
+
+/** A paragraph of text, or an image between paragraphs. */
+export type SourceBlock = string | SourceImage
+
+/** An image file as found in the book (original format), before it's converted for upload. */
+export type SourceImageFile = Blob
 
 export interface SourceBook {
   metadata: {
@@ -11,11 +28,22 @@ export interface SourceBook {
     language: string | null
   }
   /**
-   * The text in reading order, as groups of paragraphs. Each group starts on a
+   * The content in reading order, as groups of blocks. Each group starts on a
    * new page. A PDF is one group; an EPUB has one per document, because its
    * files are the book's own divisions.
    */
-  sections: string[][]
+  sections: SourceBlock[][]
+  /** Image files used in `sections`, by key. Each file appears once, however often it's used. */
+  images: Map<string, SourceImageFile>
+  /**
+   * True for fixed-layout EPUBs (comics, picture books): pages are designed as
+   * pictures with text placed on top, which can't be split into paragraphs well.
+   */
+  fixedLayout: boolean
+}
+
+export function isImageBlock(block: SourceBlock): block is SourceImage {
+  return typeof block !== 'string'
 }
 
 /** Reports extraction progress from 0 to 1. */
