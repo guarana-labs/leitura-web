@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { removeBookImages } from '@/services/bookImageService'
 import { getCoverUrls, removeCover, uploadCover } from '@/services/coverService'
 import { mapBookRow } from '@/services/mappers'
 import type { Book, BookSummary } from '@/types/book'
@@ -92,15 +93,16 @@ export async function updateBook(
   }
 }
 
-/** Deletes a book with its pages and progress (cascade), plus its cover file. */
+/** Deletes a book with its pages and progress (cascade), plus its cover and image files. */
 export async function deleteBook(book: Pick<Book, 'id' | 'coverPath'>): Promise<void> {
   const { error } = await supabase.from('books').delete().eq('id', book.id)
   if (error) throw error
 
-  if (book.coverPath) {
-    // The book is already gone; an orphaned cover file is harmless, so don't fail the delete.
-    await removeCover(book.coverPath).catch(() => undefined)
-  }
+  // The book is already gone; orphaned files are harmless, so don't fail the delete.
+  await Promise.all([
+    book.coverPath ? removeCover(book.coverPath).catch(() => undefined) : undefined,
+    removeBookImages(book.id).catch(() => undefined),
+  ])
 }
 
 async function loadCoverUrls(rows: TableRow<'books'>[]): Promise<Map<string, string>> {
