@@ -55,6 +55,7 @@ export type Database = {
           book_id: string
           page_number: number
           paragraphs: string[]
+          images: Json
           word_count: number
         }
         Insert: {
@@ -62,6 +63,7 @@ export type Database = {
           book_id: string
           page_number: number
           paragraphs: string[]
+          images?: Json
           word_count: number
         }
         Update: never
