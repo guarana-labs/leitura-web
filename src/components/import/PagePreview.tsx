@@ -54,7 +54,13 @@ export function PagePreview({ pageNumber, totalPages, page, imageUrls, onPreviou
           block.type === 'text' ? (
             <p key={index}>{block.text}</p>
           ) : (
-            <BookImage key={index} url={imageUrls.get(block.image.file) ?? null} alt={block.image.alt} />
+            <BookImage
+              key={index}
+              url={imageUrls.get(block.image.file) ?? null}
+              alt={block.image.alt}
+              // Fit inside the preview box, which is shorter than the screen.
+              className="[&_img]:max-h-[26rem]"
+            />
           ),
         )}
       </article>

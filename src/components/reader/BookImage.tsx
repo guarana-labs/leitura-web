@@ -21,15 +21,16 @@ export function BookImage({ url, alt, width, height, className }: BookImageProps
   return (
     <figure className={cn('my-1 flex justify-center', className)}>
       {url ? (
+        // Not lazy-loaded: a page has few images, and lazy images without a size yet may never load.
         <img
           src={url}
           alt={alt}
           width={width}
           height={height}
-          loading="lazy"
           decoding="async"
-          className="h-auto max-h-[70svh] w-auto max-w-full object-contain [.reader-night_&]:brightness-[.85]"
-          style={{ aspectRatio }}
+          className="h-auto max-h-[70svh] max-w-full object-contain [.reader-night_&]:brightness-[.85]"
+          // With a known size, the image's box exists before it loads (no jump, never 0×0).
+          style={{ aspectRatio, width: width ? `${width}px` : 'auto' }}
         />
       ) : (
         <div
