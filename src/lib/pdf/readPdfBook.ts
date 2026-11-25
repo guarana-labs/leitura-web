@@ -2,13 +2,14 @@ import * as pdfjs from 'pdfjs-dist'
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 import { ProtectedFileError, titleFromFileName, type ProgressCallback, type SourceBook } from '@/lib/import/sourceBook'
 import { extractBook } from '@/lib/pdf/extractBook'
+import { readPageImages } from '@/lib/pdf/pdfImages'
 
 // pdf.js parses the file in its own Web Worker, so the page stays responsive.
 pdfjs.GlobalWorkerOptions.workerSrc = workerUrl
 
 /**
- * Reads a PDF file entirely in the browser and returns its text as paragraphs.
- * The file itself is never uploaded or stored.
+ * Reads a PDF file entirely in the browser and returns its text as paragraphs,
+ * with its images between them. The file itself is never uploaded or stored.
  */
 export async function readPdfBook(file: File, onProgress?: ProgressCallback): Promise<SourceBook> {
   const data = new Uint8Array(await file.arrayBuffer())
@@ -23,16 +24,17 @@ export async function readPdfBook(file: File, onProgress?: ProgressCallback): Pr
   }
 
   try {
-    const [book, metadata] = await Promise.all([extractBook(pdf, onProgress), readMetadata(pdf)])
+    const images = new Map<string, Blob>()
+    const readImages = async (pageNumber: number) => readPageImages(await pdf.getPage(pageNumber), pageNumber, images)
+    const [book, metadata] = await Promise.all([extractBook(pdf, onProgress, readImages), readMetadata(pdf)])
     return {
       metadata: {
         title: metadata.title || titleFromFileName(file.name),
         author: metadata.author,
         language: null,
       },
-      sections: [book.paragraphs],
-      // PDF images aren't extracted (yet).
-      images: new Map(),
+      sections: [book.blocks],
+      images,
       // PDFs don't declare a cover.
       cover: null,
       fixedLayout: false,

@@ -8,14 +8,18 @@
  * - Paragraphs: a new paragraph starts after a larger vertical gap, an indented
  *   line, or a short previous line that ends a sentence.
  * - Hyphenation: "Wor-" + "ten" at a line break becomes "Worten".
+ * - Images: placed before the first line below them on their page. An image
+ *   beside or inside a paragraph (even one continuing on the next page) goes
+ *   right after that paragraph, so paragraphs are never cut by a picture.
  *
  * The book's structure (chapters, headings) is not detected: headings simply
  * become paragraphs of the text.
  *
  * This module has no React or browser dependencies, so it can be tested in isolation.
+ * Finding and decoding images (which needs the browser) is done by `readImages`.
  */
 
-import { NoTextError, type ProgressCallback } from '@/lib/import/sourceBook'
+import { NoTextError, type ProgressCallback, type SourceBlock, type SourceImage } from '@/lib/import/sourceBook'
 
 /** The subset of pdf.js' API this module needs. */
 export interface PdfLike {
@@ -25,8 +29,23 @@ export interface PdfLike {
   }>
 }
 
+/** An image drawn on a page. */
+export interface PdfImage {
+  /** Key of the image file (the caller keeps the files). */
+  file: string
+  /** Top edge, in the same units as text positions (PDF units from the bottom of the page). */
+  top: number
+  /** Size in pixels. */
+  width: number
+  height: number
+}
+
+/** Returns a page's images. */
+export type ReadImages = (pageNumber: number) => Promise<PdfImage[]>
+
 export interface ExtractedBook {
-  paragraphs: string[]
+  /** Paragraphs and images, in reading order. */
+  blocks: SourceBlock[]
 }
 
 interface RawTextItem {
@@ -50,12 +69,14 @@ interface Line {
 const MIN_TEXT_CHARS = 200
 const SAME_LINE_TOLERANCE = 2
 
-export async function extractBook(pdf: PdfLike, onProgress?: ProgressCallback): Promise<ExtractedBook> {
+export async function extractBook(pdf: PdfLike, onProgress?: ProgressCallback, readImages?: ReadImages): Promise<ExtractedBook> {
   const pages: Line[][] = []
+  const pageImages: PdfImage[][] = []
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
     const page = await pdf.getPage(pageNumber)
     const content = await page.getTextContent()
     pages.push(buildLines(content.items as RawTextItem[], pageNumber))
+    pageImages.push((await readImages?.(pageNumber)) ?? [])
     onProgress?.(pageNumber / pdf.numPages)
   }
 
@@ -66,7 +87,7 @@ export async function extractBook(pdf: PdfLike, onProgress?: ProgressCallback): 
 
   const cleanedPages = removeHeadersAndFooters(pages)
   const layout = measureLayout(cleanedPages.flat())
-  return { paragraphs: buildParagraphs(cleanedPages, layout) }
+  return { blocks: buildBlocks(cleanedPages, pageImages, layout) }
 }
 
 // ---------------------------------------------------------------------------
@@ -197,23 +218,44 @@ function measureLayout(lines: Line[]): Layout {
 
 const SENTENCE_END = /[.!?…:»«"“”'’)]$/
 
-function buildParagraphs(pages: Line[][], layout: Layout): string[] {
-  const paragraphs: string[] = []
+function buildBlocks(pages: Line[][], pageImages: PdfImage[][], layout: Layout): SourceBlock[] {
+  const blocks: SourceBlock[] = []
   let paragraph = ''
   let previous: Line | null = null
+  // Images met while a paragraph is still open; they go right after it.
+  let waiting: SourceImage[] = []
 
-  for (const line of pages.flat()) {
-    const continuesHyphenatedWord = isHyphenBreak(paragraph, line.text)
-    if (previous && !continuesHyphenatedWord && startsNewParagraph(previous, line, layout)) {
-      if (paragraph.trim()) paragraphs.push(paragraph.trim())
-      paragraph = ''
-    }
-    paragraph = joinLines(paragraph, line.text)
-    previous = line
+  function endParagraph() {
+    if (paragraph.trim()) blocks.push(paragraph.trim())
+    paragraph = ''
+    blocks.push(...waiting)
+    waiting = []
   }
-  if (paragraph.trim()) paragraphs.push(paragraph.trim())
 
-  return paragraphs
+  function placeImage(image: PdfImage) {
+    const block: SourceImage = { type: 'image', file: image.file, alt: '', width: image.width, height: image.height }
+    if (paragraph.trim()) waiting.push(block)
+    else blocks.push(block)
+  }
+
+  for (const [index, lines] of pages.entries()) {
+    // Top of the page first (PDF y grows upwards).
+    const images = [...(pageImages[index] ?? [])].sort((a, b) => b.top - a.top)
+
+    for (const line of lines) {
+      const continuesHyphenatedWord = isHyphenBreak(paragraph, line.text)
+      if (previous && !continuesHyphenatedWord && startsNewParagraph(previous, line, layout)) endParagraph()
+      // Images whose top is above this line come before it.
+      while (images.length > 0 && images[0].top > line.y) placeImage(images.shift()!)
+      paragraph = joinLines(paragraph, line.text)
+      previous = line
+    }
+    // Images below the page's last line (or on a page without text).
+    for (const image of images) placeImage(image)
+  }
+  endParagraph()
+
+  return blocks
 }
 
 function startsNewParagraph(previous: Line, line: Line, layout: Layout): boolean {

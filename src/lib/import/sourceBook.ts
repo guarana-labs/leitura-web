@@ -1,6 +1,6 @@
 /**
  * What every file reader (PDF, EPUB, ...) produces: the book's text as
- * paragraphs (and images, for EPUBs), plus metadata suggestions the user can
+ * paragraphs and images, plus metadata suggestions the user can
  * change before saving.
  */
 
